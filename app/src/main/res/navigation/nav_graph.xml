@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.fishingcatch0403.fishingcatch0403.fragments.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/friendsFragment"
+        android:name="com.example.fishingcatch0403.fishingcatch0403.fragments.FriendsFragment"
+        android:label="fragment_friends"
+        tools:layout="@layout/fragment_friends" />
+    <fragment
+        android:id="@+id/keyFragment"
+        android:name="com.example.fishingcatch0403.fishingcatch0403.fragments.KeyFragment"
+        android:label="fragment_key"
+        tools:layout="@layout/fragment_key" />
+    <fragment
+        android:id="@+id/recentsFragment"
+        android:name="com.example.fishingcatch0403.fishingcatch0403.fragments.RecentsFragment"
+        android:label="fragment_recents"
+        tools:layout="@layout/fragment_recents" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.fishingcatch0403.fishingcatch0403.fragments.SettingsFragment"
+        android:label="fragment_setting"
+        tools:layout="@layout/fragment_setting" />
+</navigation>
