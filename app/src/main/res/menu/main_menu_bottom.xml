@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/homeFragment"
+        android:title="홈"
+        android:icon="@drawable/home"/>
+
+    <item
+        android:id="@+id/recentsFragment"
+        android:title="최근기록"
+        android:icon="@drawable/img" />
+
+    <item
+        android:id="@+id/keyFragment"
+        android:title="키패드"
+        android:icon="@drawable/key" />
+
+    <item
+        android:id="@+id/friendsFragment"
+        android:title="연락처"
+        android:icon="@drawable/book"/>
+
+    <item
+        android:id="@+id/settingsFragment"
+        android:title="더보기"
+        android:icon="@drawable/set"/>
+</menu>
