@@ -44,7 +44,7 @@ class RecentsFragment : Fragment() {
         listView.adapter = listViewAdapter
 
         // ChatGpt 객체 생성
-        analyzeChatGpt = AnalyzeChatGpt()
+        analyzeChatGpt = AnalyzeChatGpt(requireContext())
 
         // ListView의 아이템을 클릭했을 때 이벤트 처리
         listView.setOnItemClickListener { parent, view, position, id ->
@@ -53,8 +53,8 @@ class RecentsFragment : Fragment() {
             // 여기서 파일을 읽거나 다른 작업을 수행할 수 있습니다.
             val fileContents = readFileContents(fileName)
             Toast.makeText(requireContext(), "$fileName 선택됨", Toast.LENGTH_SHORT).show()
-//            Toast.makeText(requireContext(), fileContents, Toast.LENGTH_LONG).show()
-            analyze(fileName)
+            Toast.makeText(requireContext(), fileContents, Toast.LENGTH_LONG).show()
+            analyze(fileList[position])
         }
 
         // 저장소 읽기 권한이 있는지 확인
@@ -120,24 +120,31 @@ class RecentsFragment : Fragment() {
         val apiKey = BuildConfig.API_KEY // OpenAI API 키
 
         val textContent = analyzeChatGpt.readTextFile(fileName) // 텍스트 파일을 읽어옵니다.
+        Log.d("Phishing", "텍스트 파일 내용: $textContent")    // 텍스트 파일 내용을 로그로 출력합니다.
 
         analyzeChatGpt.sendTextToChatGPT(
             apiKey,
             textContent
-        ) { response -> // ChatGPT API로 텍스트를 전송합니다.
+        ) { response, error -> // ChatGPT API로 텍스트를 전송합니다.
+            if (error != null) {
+                Toast.makeText(requireContext(), "ChatGPT 요청 중 오류가 발생했습니다.", Toast.LENGTH_LONG)
+                    .show()
+                Log.e("Phishing","ChatGPT API 요청 실패", error)
+                return@sendTextToChatGPT
+            }
+            Log.d("Phishing", "ChatGPT 응답: $response")
             if (response != null) { // ChatGPT 응답을 받은 경우
-                val isPhishing = analyzeChatGpt.analyzeResponse(response)   // ChatGPT 응답을 분석합니다.
-                if (isPhishing) {   // 보이스피싱일 가능성이 있는 경우
-                    Toast.makeText(requireContext(), "보이스피싱 가능성이 있습니다.", Toast.LENGTH_LONG)
-                        .show()
-                    Log.d("Phishing", "보이스피싱 의심 통화")
-                } else {    // 보이스피싱이 아닐 가능성이 높은 경우
-                    Toast.makeText(
-                        requireContext(),
-                        "보이스피싱 가능성이 낮습니다.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    Log.d("Phishing", "보이스피싱 아닌 통화")
+                analyzeChatGpt.analyzeResponse(response)   // ChatGPT 응답을 분석합니다.
+                { isPhishing, analysis -> // 보이스피싱 여부를 판단합니다.
+                    if (isPhishing) {
+                        Toast.makeText(requireContext(), "보이스피싱 가능성이 있습니다.", Toast.LENGTH_LONG)
+                            .show()
+                        Log.d("Phishing", "보이스피싱 의심 통화: $analysis")
+                    } else {
+                        Toast.makeText(requireContext(), "보이스피싱 가능성이 낮습니다.", Toast.LENGTH_LONG)
+                            .show()
+                        Log.d("Phishing", "보이스피싱 아닌 통화")
+                    }
                 }
             } else {    // ChatGPT 응답을 받지 못한 경우
                 Toast.makeText(requireContext(), "ChatGPT 로부터 응답을 받지 못했습니다.", Toast.LENGTH_LONG)
@@ -153,11 +160,16 @@ class RecentsFragment : Fragment() {
         permissions: Array<out String>, // 요청한 권한 목록
         grantResults: IntArray  // 권한 요청 결과
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)    // 상위 클래스의 메소드 호출
+        super.onRequestPermissionsResult(
+            requestCode,
+            permissions,
+            grantResults
+        )    // 상위 클래스의 메소드 호출
         if (requestCode == 100 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {  // 권한 요청 코드가 100이고 권한이 허용된 경우
             loadTextFiles() // 저장소 읽기 권한이 허용된 경우 파일 목록을 불러옵니다.
         } else {    // 권한이 거부된 경우
-            Toast.makeText(requireContext(), "저장소 읽기 권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()  // 토스트 메시지를 표시합니다.
+            Toast.makeText(requireContext(), "저장소 읽기 권한이 거부되었습니다.", Toast.LENGTH_SHORT)
+                .show()  // 토스트 메시지를 표시합니다.
         }
     }
 }
