@@ -13,32 +13,37 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.arthenica.mobileffmpeg.Config
 import com.arthenica.mobileffmpeg.FFmpeg
-import com.example.fishingcatch0403.R
 import com.example.fishingcatch0403.databinding.FragmentHomeBinding
 import com.google.api.gax.core.FixedCredentialsProvider
 import com.google.auth.oauth2.GoogleCredentials
-import com.google.cloud.speech.v1.*
-import com.google.protobuf.ByteString
-import java.io.File
-import java.io.FileOutputStream
-import java.io.OutputStreamWriter
-import java.nio.file.Files
-import java.nio.file.Paths
-import kotlinx.coroutines.*
-import com.google.cloud.speech.v1.SpeechClient
 import com.google.cloud.speech.v1.RecognitionAudio
 import com.google.cloud.speech.v1.RecognitionConfig
 import com.google.cloud.speech.v1.RecognitionConfig.AudioEncoding
-import com.google.cloud.speech.v1.RecognizeResponse
+import com.google.cloud.speech.v1.SpeechClient
+import com.google.cloud.speech.v1.SpeechSettings
+import com.google.protobuf.ByteString
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStreamWriter
 import java.net.URLConnection
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 
 class HomeFragment : Fragment(), CoroutineScope by MainScope() {
-    private var mBinding: FragmentHomeBinding? = null
-    private lateinit var recordingListView: ListView
+    private var mBinding: FragmentHomeBinding? = null   // 뷰 바인딩
+    private lateinit var recordingListView: ListView    // 녹음 파일 리스트뷰
+    private var isConverting = false    // 변환 중인지 여부
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -77,6 +82,13 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
         outputFilePath: String, // 출력 파일 경로
         onComplete: (Boolean) -> Unit   // 변환 완료 시 호출할 콜백 함수
     ) {
+        if (isConverting) {  // 변환 중일 경우 처리
+            onComplete(false)
+            return
+        }
+
+        isConverting = true  // 변환 중으로 설정
+
         val command = arrayOf("-i", inputFilePath, "-ac", "1", outputFilePath)  // FFmpeg 명령어
 
         // 명령어와 경로를 로그로 출력
@@ -94,6 +106,7 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
 
         // FFmpeg 명령어 실행
         FFmpeg.executeAsync(command) { _, returnCode ->
+            isConverting = false  // 변환 완료로 설정
             onComplete(returnCode == 0) // 성공 시 onComplete 함수 호출
         }
     }
@@ -184,6 +197,7 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
             // 선택된 파일을 처리하는 로직 (오디오 파일을 텍스트로 변환)
             convertToMono(selectedFilePath, outputFilePath) { success ->
                 if (success) {
+                    Log.d("Mono", "모노 변환된 파일 : $outputFilePath")
                     // 변환된 모노 파일로 STT 처리
                     transcribeAudio(outputFilePath)
                 } else {
@@ -204,6 +218,8 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
     private fun transcribeAudio(filePath: String) {
         GlobalScope.launch(Dispatchers.IO) {
             try {
+                Log.d("transcribe", "번역된 파일 : $filePath")  // 번역된 파일 경로 Log 출력
+
                 val credentials =
                     getGoogleCredentialsFromAsset(requireContext(), "fishing0408-1c5f19ff4af6.json")
                 val settings = SpeechSettings.newBuilder()
@@ -211,6 +227,7 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
 
                 SpeechClient.create(settings).use { speechClient ->
                     val data = Files.readAllBytes(Paths.get(filePath))
+                    Log.d("transcribe", "${data.size} bytes 파일 선택 : $filePath")
                     val audioBytes = ByteString.copyFrom(data)
 
                     val config = RecognitionConfig.newBuilder().setEncoding(AudioEncoding.LINEAR16)
@@ -237,6 +254,7 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
                                 "Transcription: ${alternative.transcript}",
                                 Toast.LENGTH_LONG
                             ).show()
+                            Log.d("transcribe", "번역 : ${alternative.transcript}")  // 번역 결과 Log 출력
                             saveTranscriptionToFile(
                                 alternative.transcript
                             )
