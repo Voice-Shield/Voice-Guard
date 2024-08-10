@@ -45,25 +45,8 @@ class MainActivity : AppCompatActivity() {
                 // 액티비티를 시작하고 결과를 처리하는 런처를 생성합니다.
                 ActivityResultContracts.StartActivityForResult()
             ) { result ->
+                initScreen()
                 // 뷰 바인딩을 사용하여 레이아웃을 설정합니다.
-                binding = ActivityMainBinding.inflate(layoutInflater)
-                setContentView(binding.root)
-
-                // 앱에 필요한 권한들을 확인하고 요청하는 메소드를 호출합니다.
-                checkPermissions()
-
-                // 네비게이션 컴포넌트를 설정합니다.
-                val navHostFragment = supportFragmentManager
-                    .findFragmentById(R.id.my_nav_host) as NavHostFragment
-                val navController = navHostFragment.navController
-
-                // 바텀 네비게이션과 네비게이션 컨트롤러를 연결합니다.
-                NavigationUI.setupWithNavController(binding.menuBottomNavigation, navController)
-
-                // 인텐트를 통해 특정 프래그먼트를 바로 보여줄지 결정합니다.
-                if (intent.getBooleanExtra("showHomeFragment", false)) {
-                    navController.navigate(R.id.homeFragment)
-                }
             }
 
         // 객체 초기화
@@ -78,6 +61,27 @@ class MainActivity : AppCompatActivity() {
             callTrackingManager.markStartDialerCalled()
             // 다이얼러 시작 여부 로그 출력
             Log.d("dialer_start", "다이얼러 시작 여부: ${callTrackingManager.isStartDialerCalled()}")
+        } else initScreen()
+    }
+
+    private fun initScreen() {
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // 앱에 필요한 권한들을 확인하고 요청하는 메소드를 호출합니다.
+        checkPermissions()
+
+        // 네비게이션 컴포넌트를 설정합니다.
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.my_nav_host) as NavHostFragment
+        val navController = navHostFragment.navController
+
+        // 바텀 네비게이션과 네비게이션 컨트롤러를 연결합니다.
+        NavigationUI.setupWithNavController(binding.menuBottomNavigation, navController)
+
+        // 인텐트를 통해 특정 프래그먼트를 바로 보여줄지 결정합니다.
+        if (intent.getBooleanExtra("showHomeFragment", false)) {
+            navController.navigate(R.id.homeFragment)
         }
     }
 

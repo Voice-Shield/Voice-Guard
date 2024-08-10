@@ -23,7 +23,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FishingCatch0403"
-        package= "com.example.fishingcatch0403"
+        package= "com.example.fishingcatch0403_tester"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
