@@ -76,6 +76,8 @@ android {
 
     dependencies {
         val nav_version = "2.7.7"
+        val lifecycle_version = "2.8.4"
+
         implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
         implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
         implementation(libs.androidx.core.ktx)
@@ -95,7 +97,8 @@ android {
         implementation("com.google.api:gax:2.22.0")
         implementation("com.google.cloud:libraries-bom:26.2.0")
 
-
+        // ViewModel
+        implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
     }
 
 }
