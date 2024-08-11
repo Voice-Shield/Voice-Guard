@@ -27,6 +27,7 @@ import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.time.measureTime
+import kotlin.time.measureTimedValue
 
 //data class MonoAudio(
 //    val filePath:String,
@@ -56,13 +57,18 @@ class MainViewModel : ViewModel() {
     //모노 오디오 파일로 변환 후, STT 과정을 거쳐, 분석까지 이뤄지는 상황에서의 진행 상태
     private val _transcriptState = MutableStateFlow<State<AnalyzedResult>>(State.Loading)
     val transcriptState get() = _transcriptState.asStateFlow()
-
+    val settings by lazy {
+        SpeechSettings.newBuilder()
+            .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
+            .build()
+    }
 
     fun setCredentials(credentials: GoogleCredentials) {
         this.credentials = credentials
     }
 
     fun loadRecordings() {
+        _recordState.value = State.Loading
         viewModelScope.launch {
             runCatching {
                 (Environment.getExternalStorageDirectory().absolutePath + "/Recordings/Call").let { ringtonesFolderPath ->
@@ -134,28 +140,39 @@ class MainViewModel : ViewModel() {
                     outputFile.delete()
                 }
                 // FFmpeg 명령어 실행
-                val result = suspendCoroutine { cont ->
-                    FFmpeg.executeAsync(command) { _: Long, returnCode: Int ->
-                        cont.resume(
-                            returnCode
-                        )
-                    }
-                }
-                // 모노 파일 변환 결과에 따른 진행 분기
-                if (result == 0) { //정상적으로 변환된 경우
-                    transcriptMonoFile(monoFilePath = outputFilePath).onFailure {
-                        _transcriptState.value = State.Error(it)
-                    }.onSuccess { transcript ->
-                        val saveResult = saveTranscriptionToFile(transcript)
-                        saveResult.onFailure {
-                            _transcriptState.value = State.Error(Exception("파일 저장 중에 에러가 발생했습니다. "))
-                        }.onSuccess {
-                            _transcriptState.value = State.Success(AnalyzedResult(it))
+                val result = measureTimedValue {
+                    suspendCoroutine { cont ->
+                        FFmpeg.executeAsync(command) { _: Long, returnCode: Int ->
+                            cont.resume(
+                                returnCode
+                            )
                         }
                     }
-                } else _transcriptState.value = State.Error(Exception("오디오 변환 실패"))
+                }.run {
+                    Log.d("[APP] Wav to Mono : ", "${duration.inWholeSeconds}s")
+                    value
+                }
+
+                // 모노 파일 변환 결과에 따른 진행 분기
+                if (result == 0) { //정상적으로 변환된 경우
+                    measureTime {
+                        transcriptMonoFile(monoFilePath = outputFilePath).onFailure {
+                            _transcriptState.value = State.Error(it)
+                        }.onSuccess { transcript ->
+                            val saveResult = saveTranscriptionToFile(transcript)
+                            saveResult.onFailure {
+                                _transcriptState.value = State.Error(Exception("파일 저장 중에 에러가 발생했습니다. "))
+                            }.onSuccess {
+                                _transcriptState.value = State.Success(AnalyzedResult(it))
+                            }
+                        }
+                    }.run {
+                        Log.d("[APP] Mono to Transcript : ", "${this.inWholeSeconds}s")
+                    }
+                }
+                else _transcriptState.value = State.Error(Exception("오디오 변환 실패"))
             }
-            Log.d("Elapsed Time to analyze file: ","${elapsedTime.inWholeSeconds}s")
+            Log.d("[APP] Elapsed Time to analyze file: ","${elapsedTime.inWholeSeconds}s")
         }
     }
 
@@ -169,22 +186,24 @@ class MainViewModel : ViewModel() {
                         o1.nameWithoutExtension.split("_")[1].toInt()
                             .compareTo(o2.nameWithoutExtension.split("_")[1].toInt())
                     }
-                    val res = sortedAudios.map { audio ->
-                        val settings = SpeechSettings.newBuilder()
-                            .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
-                            .build()
+                    val res = sortedAudios.mapIndexed { index,audio ->
                         SpeechClient.create(settings).use { speechClient ->
                             try {
-                                val audioBytes = ByteString.copyFrom(audio.readBytes())
-                                val config = RecognitionConfig.newBuilder()
-                                    .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
-                                    .setSampleRateHertz(44100).setLanguageCode("ko-KR").build()
-                                val audio =
-                                    RecognitionAudio.newBuilder().setContent(audioBytes).build()
-                                val response = speechClient.recognize(config, audio)
-                                val results =
-                                    response.resultsList.joinToString("") { it.alternativesList[0].transcript }
-                                "$results"
+                                measureTimedValue {
+                                    val audioBytes = ByteString.copyFrom(audio.readBytes())
+                                    val config = RecognitionConfig.newBuilder()
+                                        .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
+                                        .setSampleRateHertz(44100).setLanguageCode("ko-KR").build()
+                                    val audio =
+                                        RecognitionAudio.newBuilder().setContent(audioBytes).build()
+                                    val response = speechClient.recognize(config, audio)
+                                    val results =
+                                        response.resultsList.joinToString("") { it.alternativesList[0].transcript }
+                                    "$results"
+                                }.run {
+                                    Log.d("[APP] Make transcript $index", "${duration.inWholeSeconds}s")
+                                    value
+                                }
                             } catch (e: Exception) {
                                 throw e
                                 Log.e("Error On Transcription: ", e.message.toString())
@@ -193,7 +212,8 @@ class MainViewModel : ViewModel() {
                         }
                     }
 
-                    segmentedMonoAudios.delete() // 변환된 모노 오디오 파일 들을 삭제
+                    File(monoFilePath).delete() //변환된 모노파일 삭제
+                    segmentedMonoAudios.deleteRecursively() // 1분 단위로 분할된 모노 오디오 파일들을 삭제
                     res.joinToString("") { it }
                 }
             }
@@ -215,8 +235,6 @@ class MainViewModel : ViewModel() {
         val std = FFmpeg.execute(commandForSegment).also {
             it //추가 로깅 필요시 이용하기
         } == 0
-
-
 
         return@withContext if (std) tmp else null
     }

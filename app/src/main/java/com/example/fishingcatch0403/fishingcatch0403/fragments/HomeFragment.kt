@@ -16,9 +16,6 @@ import com.example.fishingcatch0403.State
 import com.example.fishingcatch0403.WavModel
 import com.example.fishingcatch0403.databinding.FragmentHomeBinding
 import com.google.auth.oauth2.GoogleCredentials
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -31,7 +28,7 @@ import java.io.File
  * 1. wav 녹음 파일들을 리스트로 보여줌(List<String>)
  * 2.
  * */
-class HomeFragment : Fragment(), CoroutineScope by MainScope() {
+class HomeFragment : Fragment(){
     private var mBinding: FragmentHomeBinding? = null   // 뷰 바인딩
     private val adapter by lazy {
         ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, ArrayList<String>())
@@ -46,7 +43,7 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
     private val mainViewModel by viewModels<MainViewModel>() // MainViewModel 객체 생성
 
     var showLoadingBar = false
-
+    var showToast = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -55,20 +52,23 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
         mBinding!!.run {
             recordingListview.adapter = adapter
             recordingListview.setOnItemClickListener { _, _, position, _ ->
+                showToast = true
                 wavItemClick(position)
             }
         }
+        showToast = true
         mainViewModel.loadRecordings()
         mainViewModel.setCredentials(credentials)
 
         collectLatestStateFlow(mainViewModel.recordState) { state ->
             when (val value = state) {
                 is State.Success -> {
+                    showToast = false
                     with(value) {
                         if (::convertedWavDataList.isInitialized) {
                             val new = result.filter { it !in convertedWavDataList }
                             convertedWavDataList.addAll(new)
-                            adapter.addAll(new.map { wav->wav.fileName })
+                            adapter.addAll(new.map { wav -> wav.fileName })
                         } else {
                             convertedWavDataList = result.toMutableList()
                             adapter.addAll(result.map { wav -> wav.fileName })
@@ -78,11 +78,7 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
                 }
 
                 is State.Error -> {
-                    Toast.makeText(
-                        requireContext(),
-                        "파일 변환 중에 에러가 발생하였습니다.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    setToast("파일 변환 중에 에러가 발생하였습니다.")
                 }
 
                 is State.Loading -> {}
@@ -91,21 +87,15 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
         collectLatestStateFlow(mainViewModel.transcriptState) {
             when (val value = it) {
                 is State.Success -> {
-                    showLoadingBar = false
-                    Toast.makeText(
-                        requireContext(),
-                        "파일 경로 : ${value.result.answer}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    setToast("파일 경로 : ${value.result.answer}") {
+                        showLoadingBar = false
+                    }
                 }
 
                 is State.Error -> {
-                    showLoadingBar = false
-                    Toast.makeText(
-                        requireContext(),
-                        "파일 변환 중에 에러가 발생하였습니다.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    setToast("파일 변환 중에 에러가 발생하였습니다.") {
+                        showLoadingBar = false
+                    }
                 }
 
                 //로딩바를 진행하면 됨
@@ -115,17 +105,26 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
             }
         }
 
-
         return mBinding!!.root
     }
-
+    // 토스트 메시지 중복 제거를 위한 함수
+    private fun setToast(msg: String, extension: () -> Unit = {}) {
+        if (showToast) {
+            extension()
+            Toast.makeText(
+                requireContext(),
+                msg,
+                Toast.LENGTH_SHORT
+            ).show()
+            showToast = false
+        }
+    }
 
     //wav 파일 리스트에서 파일을 선택할 때 호출되는 함수
     private fun wavItemClick(position: Int) {
         Toast.makeText(requireContext(), "분석 시작", Toast.LENGTH_SHORT).show()
         convertedWavDataList[position].let {
-            val outputFilePath =
-                File(requireContext().cacheDir, "mono_${it.fileName}").absolutePath
+            val outputFilePath = File(requireContext().cacheDir, "mono_${it.fileName}").absolutePath
             mainViewModel.analyzeRecordedFile(it.filePath, outputFilePath)
         }
     }
@@ -136,10 +135,5 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
                 flow.collectLatest(collector)
             }
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        cancel() // CoroutineScope를 정리합니다.
     }
 }
