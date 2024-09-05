@@ -43,7 +43,7 @@ data class AnalyzedResult(
 
 
 sealed class State<out T> {
-    object Loading : State<Nothing>()
+    data object Loading : State<Nothing>()
     data class Error(val throwable: Throwable?) : State<Nothing>()
     data class Success<T>(val result: T) : State<T>()
 }
@@ -96,22 +96,6 @@ class MainViewModel : ViewModel() {
             }.onFailure {
                 _recordState.value = State.Error(it)
             }
-        }
-    }
-
-    private suspend fun convertM4aToWav(inputPath: String, outputPath: String): Boolean {
-        // FFmpeg를 사용하여 m4a 파일을 wav 파일로 변환
-        return withContext(Dispatchers.IO) {
-            // FFmpeg 명령어를 사용하여 m4a 파일을 wav 파일로 변환
-            val command = arrayOf(
-                "-i", inputPath, "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "2", outputPath
-            )
-            val executionResult = FFmpeg.execute(command)   // FFmpeg 명령어 실행
-            if (executionResult != 0) { // 명령어 실행 실패 시 로그 출력
-                val log = Config.getLastCommandOutput()
-                Log.e("FFmpeg", "커맨드 입력 실패: $log")
-            }
-            executionResult == 0 // 0이면 성공, 그 외는 실패
         }
     }
 

@@ -86,6 +86,7 @@ android {
         implementation(libs.androidx.activity)
         implementation(libs.androidx.constraintlayout)
         testImplementation(libs.junit)
+        testImplementation(libs.coroutine)
         androidTestImplementation(libs.androidx.junit)
         androidTestImplementation(libs.androidx.espresso.core)
 
