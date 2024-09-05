@@ -21,8 +21,12 @@ class MainActivity : AppCompatActivity() {
 
     // 필요한 권한들을 문자열로 선언합니다.
     private val recordPermission = android.Manifest.permission.RECORD_AUDIO
-    private val storagePermission = android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-    private val readPermission = android.Manifest.permission.READ_EXTERNAL_STORAGE
+    private val statePermission = android.Manifest.permission.READ_PHONE_STATE
+    private val audioPermission = android.Manifest.permission.READ_MEDIA_AUDIO
+    private val contactPermission = android.Manifest.permission.READ_CONTACTS
+
+//    private val storagePermission = android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+//    private val readPermission = android.Manifest.permission.READ_EXTERNAL_STORAGE
 
     // 뷰 바인딩을 위한 변수 선언. 나중에 초기화됩니다.
     private lateinit var binding: ActivityMainBinding
@@ -90,16 +94,23 @@ class MainActivity : AppCompatActivity() {
         // 각 권한이 승인되었는지 확인합니다.
         val isRecordOK = ContextCompat.checkSelfPermission(this, recordPermission) ==
                 PackageManager.PERMISSION_GRANTED
-        val isStorageOK = ContextCompat.checkSelfPermission(this, storagePermission) ==
+        val isStateOK = ContextCompat.checkSelfPermission(this, statePermission) ==
                 PackageManager.PERMISSION_GRANTED
-        val isReadOK = ContextCompat.checkSelfPermission(this, readPermission) ==
+        val isStorageOK = ContextCompat.checkSelfPermission(this, audioPermission) ==
+                PackageManager.PERMISSION_GRANTED
+        val contactOK = ContextCompat.checkSelfPermission(this, contactPermission) ==
                 PackageManager.PERMISSION_GRANTED
 
+//        val isStorageOK = ContextCompat.checkSelfPermission(this, storagePermission) ==
+//                PackageManager.PERMISSION_GRANTED
+//        val isReadOK = ContextCompat.checkSelfPermission(this, readPermission) ==
+//                PackageManager.PERMISSION_GRANTED
+
         // 하나라도 거부된 권한이 있다면, 사용자에게 권한 요청을 합니다.
-        if (!isRecordOK || !isStorageOK || !isReadOK) {
+        if (!isRecordOK || !isStorageOK || !isStateOK || !contactOK) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(recordPermission, storagePermission, readPermission), 1000
+                arrayOf(recordPermission, audioPermission, statePermission, contactPermission), 1000
             )
         }
     }
