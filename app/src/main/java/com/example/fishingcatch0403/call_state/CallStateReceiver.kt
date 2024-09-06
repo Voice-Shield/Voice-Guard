@@ -74,33 +74,34 @@ class CallStateReceiver : BroadcastReceiver() {
             }
         }
     }
-}
-
-private fun startCallService(context: Context, phoneNumber: String) {
-    val intent = Intent(context, CallService::class.java)
-    intent.putExtra("phoneNumber", phoneNumber)
-    context.startService(intent)
-}
-
-private fun stopCallService(context: Context) {
-    val intent = Intent(
-        context, CallService::class.java
-    )
-    context.stopService(intent)
-}
 
 
-private fun BroadcastReceiver.goAsync(
-    context: CoroutineContext = EmptyCoroutineContext,
-    block: suspend CoroutineScope.() -> Unit
-) {
-    val pendingResult = goAsync()
-    @OptIn(DelicateCoroutinesApi::class) // Must run globally; there's no teardown callback.
-    GlobalScope.launch(context) {
-        try {
-            block()
-        } finally {
-            pendingResult.finish()
+    private fun startCallService(context: Context, phoneNumber: String) {
+        val intent = Intent(context, CallService::class.java)
+        intent.putExtra("phoneNumber", phoneNumber)
+        context.startService(intent)
+    }
+
+    private fun stopCallService(context: Context) {
+        val intent = Intent(
+            context, CallService::class.java
+        )
+        context.stopService(intent)
+    }
+
+
+    private fun BroadcastReceiver.goAsync(
+        context: CoroutineContext = EmptyCoroutineContext,
+        block: suspend CoroutineScope.() -> Unit
+    ) {
+        val pendingResult = goAsync()
+        @OptIn(DelicateCoroutinesApi::class) // Must run globally; there's no teardown callback.
+        GlobalScope.launch(context) {
+            try {
+                block()
+            } finally {
+                pendingResult.finish()
+            }
         }
     }
 }
