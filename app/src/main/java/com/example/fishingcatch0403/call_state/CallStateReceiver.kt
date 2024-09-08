@@ -29,41 +29,41 @@ class CallStateReceiver : BroadcastReceiver() {
                     foundPhoneNumber = false
                     phoneState = currentState
                 }
+                Log.d("[APP] CallState", "전화상태: $phoneState")
                 if (foundPhoneNumber.not()) {
                     when (phoneState) {
                         // 통화 수신
                         TelephonyManager.EXTRA_STATE_RINGING -> {
                             Log.d("[APP] CallState", "통화수신")
-                            intent.getStringExtra(INCOMING_NUMBER)?.let { phoneNumber ->
-                                goAsync(Dispatchers.IO) {
-                                    if (isCallServiceStart.not()) {
-                                        startCallService(context, phoneNumber)
-                                        isCallServiceStart = true
-                                    }
+                            intent.getStringExtra(INCOMING_NUMBER)
+                                ?.run {
                                     foundPhoneNumber = true
                                 }
-                            }
                         }
 
                         // 통화 진행
                         TelephonyManager.EXTRA_STATE_OFFHOOK -> {
                             Log.d("[APP] CallState", "통화진행")
-                            intent.getStringExtra(INCOMING_NUMBER)?.run {
-                                onCalled = true
-                                foundPhoneNumber = true
+                            intent.getStringExtra(INCOMING_NUMBER)?.let { phoneNumber ->
+                                goAsync(Dispatchers.IO) {
+                                    stopCallService(context)
+                                    if (isCallServiceStart.not()) {
+                                        startCallService(context, phoneNumber)
+                                        isCallServiceStart = true
+                                    }
+                                    onCalled = true
+                                    foundPhoneNumber = true
+                                }
                             }
                         }
 
                         // 통화 거절 or 종료
                         TelephonyManager.EXTRA_STATE_IDLE -> {
                             Log.d("[APP] CallState", "통화종료")
-                            intent.getStringExtra(INCOMING_NUMBER)?.let { incomingNumber ->
+                            intent.getStringExtra(INCOMING_NUMBER)?.run {
                                 if (isCallServiceStart) {
                                     stopCallService(context)
                                     isCallServiceStart = false
-                                    if (onCalled) {
-
-                                    }
                                 }
                                 onCalled = false
                                 foundPhoneNumber = true
@@ -74,7 +74,6 @@ class CallStateReceiver : BroadcastReceiver() {
             }
         }
     }
-
 
     private fun startCallService(context: Context, phoneNumber: String) {
         val intent = Intent(context, CallService::class.java)
@@ -88,7 +87,6 @@ class CallStateReceiver : BroadcastReceiver() {
         )
         context.stopService(intent)
     }
-
 
     private fun BroadcastReceiver.goAsync(
         context: CoroutineContext = EmptyCoroutineContext,
