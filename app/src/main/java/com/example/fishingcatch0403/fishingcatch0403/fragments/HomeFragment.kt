@@ -42,8 +42,8 @@ class HomeFragment : Fragment(){
     private lateinit var convertedWavDataList: MutableList<WavModel>
     private val mainViewModel by viewModels<MainViewModel>() // MainViewModel 객체 생성
 
-    var showLoadingBar = false
-    var showToast = false
+    private var showLoadingBar = false
+    private var showToast = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -61,10 +61,10 @@ class HomeFragment : Fragment(){
         mainViewModel.setCredentials(credentials)
 
         collectLatestStateFlow(mainViewModel.recordState) { state ->
-            when (val value = state) {
+            when (state) {
                 is State.Success -> {
                     showToast = false
-                    with(value) {
+                    with(state) {
                         if (::convertedWavDataList.isInitialized) {
                             val new = result.filter { it !in convertedWavDataList }
                             convertedWavDataList.addAll(new)
@@ -129,7 +129,7 @@ class HomeFragment : Fragment(){
         }
     }
 
-    fun <T> Fragment.collectLatestStateFlow(flow: Flow<T>, collector: suspend (T) -> Unit) {
+    private fun <T> Fragment.collectLatestStateFlow(flow: Flow<T>, collector: suspend (T) -> Unit) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 flow.collectLatest(collector)
