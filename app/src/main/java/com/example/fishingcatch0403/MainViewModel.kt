@@ -57,7 +57,7 @@ class MainViewModel : ViewModel() {
     //모노 오디오 파일로 변환 후, STT 과정을 거쳐, 분석까지 이뤄지는 상황에서의 진행 상태
     private val _transcriptState = MutableStateFlow<State<AnalyzedResult>>(State.Loading)
     val transcriptState get() = _transcriptState.asStateFlow()
-    val settings by lazy {
+    private val settings by lazy {
         SpeechSettings.newBuilder()
             .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
             .build()
