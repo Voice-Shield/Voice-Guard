@@ -107,6 +107,7 @@ class HomeFragment : Fragment(){
 
         return mBinding!!.root
     }
+
     // 토스트 메시지 중복 제거를 위한 함수
     private fun setToast(msg: String, extension: () -> Unit = {}) {
         if (showToast) {
