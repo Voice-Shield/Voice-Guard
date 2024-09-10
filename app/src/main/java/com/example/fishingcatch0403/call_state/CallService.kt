@@ -9,6 +9,7 @@ import android.media.MediaRecorder
 import android.os.IBinder
 import android.provider.ContactsContract
 import android.util.Log
+import java.io.File
 import java.util.Date
 
 private var mediaRecorder: MediaRecorder? = null
@@ -102,13 +103,37 @@ class CallService : Service() {
                     setAudioEncoder(MediaRecorder.AudioEncoder.AAC) // AAC 인코더 사용
                     setAudioSamplingRate(44100) // 샘플링 레이트 설정
                     setAudioEncodingBitRate(128000) // 비트레이트 설정 (128kbps 권장)
-                    recordingFilePath =
-                        context.getExternalFilesDir(null)?.absolutePath + "/Recordings/Call/Recording_Call" + phoneNumber + "${Date().time}.m4a"
-                    setOutputFile(recordingFilePath)
-
-                    prepare()
-                    start()
-                    isRecording = true
+                    // 경로 설정
+                    val baseDir =
+                        context.getExternalFilesDir(null)?.absolutePath + "/Recordings/Call/"
+                    val recordingFilePath =
+                        baseDir + "Recording_Call_" + phoneNumber + "_" + "${Date().time}.m4a"
+                    // 디렉토리 객체 생성
+                    val dir = File(baseDir)
+                    // 디렉토리가 존재하지 않으면 생성
+                    if (!dir.exists()) {
+                        val isDirCreated = dir.mkdirs()
+                        if (!isDirCreated) {
+                            Log.e("[APP] CallRecording", "폴더 생성 실패: $baseDir")
+                            return
+                        }
+                    }
+                    // 파일 경로 설정
+                    try {
+                        setOutputFile(recordingFilePath)
+                    } catch (e: Exception) {
+                        Log.e("[APP] CallRecording", "오디오 파일 경로 설정 실패: ${e.message}")
+                        return
+                    }
+                    // 녹음 준비 및 시작
+                    try {
+                        prepare()
+                        start()
+                        isRecording = true
+                    } catch (e: Exception) {
+                        Log.e("[APP] CallRecording", "녹음 준비 또는 시작 실패: ${e.message}")
+                        return
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
