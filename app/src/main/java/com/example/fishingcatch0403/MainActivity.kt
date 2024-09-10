@@ -2,7 +2,11 @@ package com.example.fishingcatch0403
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
+import android.os.Environment
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -24,9 +28,8 @@ class MainActivity : AppCompatActivity() {
     private val statePermission = android.Manifest.permission.READ_PHONE_STATE
     private val audioPermission = android.Manifest.permission.READ_MEDIA_AUDIO
     private val contactPermission = android.Manifest.permission.READ_CONTACTS
-
-//    private val storagePermission = android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-//    private val readPermission = android.Manifest.permission.READ_EXTERNAL_STORAGE
+    private val storagePermission = android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+    private val readPermission = android.Manifest.permission.READ_EXTERNAL_STORAGE
 
     // 뷰 바인딩을 위한 변수 선언. 나중에 초기화됩니다.
     private lateinit var binding: ActivityMainBinding
@@ -96,24 +99,74 @@ class MainActivity : AppCompatActivity() {
                 PackageManager.PERMISSION_GRANTED
         val isStateOK = ContextCompat.checkSelfPermission(this, statePermission) ==
                 PackageManager.PERMISSION_GRANTED
-        val isStorageOK = ContextCompat.checkSelfPermission(this, audioPermission) ==
+        val isAudioOK = ContextCompat.checkSelfPermission(this, audioPermission) ==
                 PackageManager.PERMISSION_GRANTED
-        val contactOK = ContextCompat.checkSelfPermission(this, contactPermission) ==
+        val isContactOK = ContextCompat.checkSelfPermission(this, contactPermission) ==
+                PackageManager.PERMISSION_GRANTED
+        val isStorageOK = ContextCompat.checkSelfPermission(this, storagePermission) ==
+                PackageManager.PERMISSION_GRANTED
+        val isReadOK = ContextCompat.checkSelfPermission(this, readPermission) ==
                 PackageManager.PERMISSION_GRANTED
 
-//        val isStorageOK = ContextCompat.checkSelfPermission(this, storagePermission) ==
-//                PackageManager.PERMISSION_GRANTED
-//        val isReadOK = ContextCompat.checkSelfPermission(this, readPermission) ==
-//                PackageManager.PERMISSION_GRANTED
+        // Android 버전에 따라 권한 요청을 다르게 처리합니다.
+        when {
+            // Android 13 이상
+            SDK_INT >= 33 -> {
+                if (!isRecordOK || !isAudioOK || !isStorageOK || !isStateOK || !isContactOK) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(
+                            recordPermission,
+                            audioPermission, // Android 13에서는 READ_MEDIA_AUDIO 권한 사용
+                            statePermission,
+                            contactPermission
+                        ),
+                        1000
+                    )
+                }
+            }
 
-        // 하나라도 거부된 권한이 있다면, 사용자에게 권한 요청을 합니다.
-        if (!isRecordOK || !isStorageOK || !isStateOK || !contactOK) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(recordPermission, audioPermission, statePermission, contactPermission), 1000
-            )
+            // Android 11 이상 (Android 13 미만)
+            SDK_INT >= 30 -> {
+                if (!isRecordOK || !isStorageOK || !isStateOK || !isContactOK) {
+                    if (!Environment.isExternalStorageManager()) {
+                        // Android 11 이상에서는 MANAGE_EXTERNAL_STORAGE 권한을 요청합니다.
+                        val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                        intent.data = Uri.parse("package:$packageName")
+                        startActivity(intent)
+                    } else {
+                        ActivityCompat.requestPermissions(
+                            this,
+                            arrayOf(
+                                recordPermission,
+                                statePermission,
+                                contactPermission
+                            ),
+                            1000
+                        )
+                    }
+                }
+            }
+
+            // Android 10 이하
+            else -> {
+                if (!isRecordOK || !isStorageOK || !isReadOK || !isStateOK || !isContactOK) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(
+                            recordPermission,
+                            storagePermission,
+                            readPermission,
+                            statePermission,
+                            contactPermission
+                        ),
+                        1000
+                    )
+                }
+            }
         }
     }
+
 
     // 사용자의 권한 요청 응답을 처리하는 메소드.
     override fun onRequestPermissionsResult(
