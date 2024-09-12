@@ -26,6 +26,7 @@ class CallService : Service() {
             phoneNumber?.let { number ->
                 // 주소록에 없는 번호인지 확인
                 if (!isNumInContacts(this, number)) {
+                    Log.d("[APP] CallService", "연락처에 없는 번호")
                     startRecording(this, number)
                 } else {
                     Log.d("[APP] CallService", "연락처에 등록된 번호")
