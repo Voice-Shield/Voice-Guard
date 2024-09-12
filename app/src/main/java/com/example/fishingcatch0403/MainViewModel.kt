@@ -245,7 +245,7 @@ class MainViewModel : ViewModel() {
                     }
                 }
                 val fileSpace = file.absolutePath
-                Log.d("transcribe", "번역된 파일 : $fileSpace")  // 번역된 파일 경로 Log 출력
+                Log.d("[APP] transcribe", "번역된 파일 : $fileSpace")  // 번역된 파일 경로 Log 출력
 
                 fileSpace
             }
