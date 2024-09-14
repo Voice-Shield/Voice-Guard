@@ -19,7 +19,6 @@ private var onCalled = false
 private var isCallServiceStart = false
 const val INCOMING_NUMBER = TelephonyManager.EXTRA_INCOMING_NUMBER
 
-
 class CallStateReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -30,44 +29,47 @@ class CallStateReceiver : BroadcastReceiver() {
                     phoneState = currentState
                 }
                 Log.d("[APP] CallState", "전화상태: $phoneState")
+
                 if (foundPhoneNumber.not()) {
                     when (phoneState) {
-                        // 통화 수신
                         TelephonyManager.EXTRA_STATE_RINGING -> {
                             Log.d("[APP] CallState", "통화수신")
                             intent.getStringExtra(INCOMING_NUMBER)
                                 ?.run {
+                                    Log.d("[APP] CallState", "전화번호: $this")
                                     foundPhoneNumber = true
                                 }
                         }
 
-                        // 통화 진행
                         TelephonyManager.EXTRA_STATE_OFFHOOK -> {
                             Log.d("[APP] CallState", "통화진행")
-                            intent.getStringExtra(INCOMING_NUMBER)?.let { phoneNumber ->
+                            val phoneNumber = intent.getStringExtra(INCOMING_NUMBER)
+                            if (phoneNumber == null) {
+                                Log.e("[APP] CallState", "전화번호: null")
+                            } else {
+                                Log.d("[APP] CallState", "전화번호: $phoneNumber")
                                 goAsync(Dispatchers.IO) {
+                                    Log.d("[APP] CallState", "Async block 시작")
                                     stopCallService(context)
                                     if (isCallServiceStart.not()) {
                                         startCallService(context, phoneNumber)
                                         isCallServiceStart = true
                                     }
+                                    Log.d("[APP] CallState", "CallService 시작됨")
                                     onCalled = true
                                     foundPhoneNumber = true
                                 }
                             }
                         }
 
-                        // 통화 거절 or 종료
                         TelephonyManager.EXTRA_STATE_IDLE -> {
                             Log.d("[APP] CallState", "통화종료")
-                            intent.getStringExtra(INCOMING_NUMBER)?.run {
-                                if (isCallServiceStart) {
-                                    stopCallService(context)
-                                    isCallServiceStart = false
-                                }
-                                onCalled = false
-                                foundPhoneNumber = true
+                            if (isCallServiceStart) {
+                                stopCallService(context)
+                                isCallServiceStart = false
                             }
+                            onCalled = false
+                            foundPhoneNumber = true
                         }
                     }
                 }
@@ -76,12 +78,29 @@ class CallStateReceiver : BroadcastReceiver() {
     }
 
     private fun startCallService(context: Context, phoneNumber: String) {
+        Log.d("[APP] CallState", "Start CallService with phoneNumber: $phoneNumber")
         val intent = Intent(context, CallService::class.java)
         intent.putExtra("phoneNumber", phoneNumber)
         context.startService(intent)
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            context.startForegroundService(intent) // Oreo 이상에서는 startForegroundService 사용
+//        } else {
+//
+//        }
+
+        // 서비스가 정상적으로 시작되었는지 확인
+        val componentName = context.startService(intent)
+        if (componentName == null) {
+            Log.e("[APP] CallState", "CallService 시작 실패")
+        } else {
+            Log.d("[APP] CallState", "CallService 시작 성공")
+        }
     }
 
+
     private fun stopCallService(context: Context) {
+        Log.d("[APP] CallState", "Stop Service")
         val intent = Intent(
             context, CallService::class.java
         )

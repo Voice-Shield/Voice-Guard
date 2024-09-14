@@ -55,7 +55,6 @@ class CallService : Service() {
     private fun isNumInContacts(context: Context, phoneNumber: String): Boolean {
         val contentResolver = context.contentResolver
         val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
-
         val projection = arrayOf(
             ContactsContract.CommonDataKinds.Phone.NUMBER
         )
@@ -71,13 +70,19 @@ class CallService : Service() {
 
         cursor?.use {
             val numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+            if (numberIndex == -1) {
+                Log.e("[APP] CallService", "주소록에서 번호 찾기 실패")
+                return false
+            }
             while (cursor.moveToNext()) {
                 val contactNumber = cursor.getString(numberIndex)
-
                 // 전화번호를 동일한 형식으로 비교하기 위한 공백 및 하이픈 제거
                 val normalizedContactNumber = contactNumber.replace(Regex("[^\\d]"), "")
                 val normalizedIncomingPhoneNumber = phoneNumber.replace(Regex("[^\\d]"), "")
-
+                Log.d(
+                    "[APP] CallService",
+                    "Comparing: $normalizedContactNumber with $normalizedIncomingPhoneNumber"
+                )
                 // 연락처에 저장된 번호와 수신된 번호가 동일한지 비교
                 if (normalizedContactNumber == normalizedIncomingPhoneNumber) {
                     return true // 연락처에 저장된 번호와 수신 번호가 일치하면 true 반환
