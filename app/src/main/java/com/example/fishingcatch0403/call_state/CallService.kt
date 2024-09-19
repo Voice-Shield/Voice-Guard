@@ -4,18 +4,22 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
+import android.media.AudioManager
 import android.media.MediaRecorder
 import android.os.IBinder
 import android.provider.ContactsContract
 import android.util.Log
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 private var mediaRecorder: MediaRecorder? = null
 private var isRecording = false
-private var recordingFilePath = ""
 
 class CallService : Service() {
+
+    private var recordingFilePath: String? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.let {
@@ -93,25 +97,34 @@ class CallService : Service() {
         return false    // 연락처에 저장된 번호와 일치하는 번호가 없다면 false 반환
     }
 
+    // 녹음 시작 함수
     private fun startRecording(context: Context, phoneNumber: String) {
         // 현재 녹음 중이 아니라면 녹음을 시작
         if (!isRecording) {
             try {
+                // 오디오 포커스 요청
+                val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                audioManager.requestAudioFocus(
+                    null,
+                    AudioManager.STREAM_VOICE_CALL,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
+                )
+
                 // MediaRecorder 객체 생성 및 설정
                 mediaRecorder = MediaRecorder()
                 mediaRecorder?.apply {
                     // 마이크 입력을 소스로 설정
-                    setAudioSource(MediaRecorder.AudioSource.MIC)
+//                    setAudioSource(MediaRecorder.AudioSource.MIC)
+                    setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+//                    setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION)
 
-                    // 출력 파일 형식을 MPEG_4로 설정
-                    setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                    // 출력 파일 형식을 mp3로 설정
+                    setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
+                    // 오디오 인코더를 AMR_NB로 설정
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
-                    // 오디오 인코더를 AAC로 설정
-                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-
-                    // 샘플링 레이트와 인코딩 비트레이트 설정
-                    setAudioSamplingRate(44100)
-                    setAudioEncodingBitRate(128000)
+                    setAudioSamplingRate(44100)     // 샘플링 레이트 44100 설정
+//                    setAudioEncodingBitRate(128000)   // 인코딩 비트레이트 128000 설정
 
                     // 파일 경로를 설정하고 폴더 생성 로직 수행
                     val baseDir = context.getExternalFilesDir(null)?.absolutePath
@@ -141,10 +154,15 @@ class CallService : Service() {
                         // 폴더가 이미 존재할 경우 로그 출력
                         Log.i("[APP] VoiceRecording", "폴더가 이미 존재합니다: $fullPath")
                     }
-
                     // 녹음 파일 이름 생성 (시간과 전화번호를 포함하여 유니크하게 생성)
+                    val fileName = "Recording_Voice_${phoneNumber}_${
+                        SimpleDateFormat(
+                            "yyyy.MM.dd_HH:mm:ss",
+                            Locale.getDefault()
+                        ).format(Date())
+                    }.mp3"
                     val recordingFilePath =
-                        "$fullPath/Recording_Voice_${phoneNumber}_${Date().time}.m4a"
+                        "$fullPath/$fileName"
 
                     // MediaRecorder가 녹음할 파일 경로 설정
                     setOutputFile(recordingFilePath)
