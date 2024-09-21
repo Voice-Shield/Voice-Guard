@@ -71,7 +71,7 @@ class MainViewModel : ViewModel() {
         _recordState.value = State.Loading
         viewModelScope.launch {
             runCatching {
-                (Environment.getExternalStorageDirectory().absolutePath + "/Recordings/Call").let { ringtonesFolderPath ->
+                (Environment.getExternalStorageDirectory().absolutePath + "Recordings/Call").let { ringtonesFolderPath ->
                     val m4aFiles =
                         File(ringtonesFolderPath).listFiles().filter { it.extension == "m4a" }
                     if (m4aFiles.isNullOrEmpty()) throw Exception("녹음 파일이 없습니다.")
@@ -116,7 +116,7 @@ class MainViewModel : ViewModel() {
     fun analyzeRecordedFile(wavFilePath: String, outputFilePath: String) {
         _transcriptState.value = State.Loading
         viewModelScope.launch {
-           val elapsedTime =  measureTime {
+            val elapsedTime = measureTime {
                 val command = arrayOf("-i", wavFilePath, "-ac", "1", outputFilePath)  // FFmpeg 명령어
                 // 출력 파일이 이미 존재할 경우 삭제
                 val outputFile = File(outputFilePath)
@@ -145,7 +145,8 @@ class MainViewModel : ViewModel() {
                         }.onSuccess { transcript ->
                             val saveResult = saveTranscriptionToFile(transcript)
                             saveResult.onFailure {
-                                _transcriptState.value = State.Error(Exception("파일 저장 중에 에러가 발생했습니다. "))
+                                _transcriptState.value =
+                                    State.Error(Exception("파일 저장 중에 에러가 발생했습니다. "))
                             }.onSuccess {
                                 _transcriptState.value = State.Success(AnalyzedResult(it))
                             }
@@ -153,10 +154,9 @@ class MainViewModel : ViewModel() {
                     }.run {
                         Log.d("[APP] Mono to Transcript : ", "${this.inWholeSeconds}s")
                     }
-                }
-                else _transcriptState.value = State.Error(Exception("오디오 변환 실패"))
+                } else _transcriptState.value = State.Error(Exception("오디오 변환 실패"))
             }
-            Log.d("[APP] Elapsed Time to analyze file: ","${elapsedTime.inWholeSeconds}s")
+            Log.d("[APP] Elapsed Time to analyze file: ", "${elapsedTime.inWholeSeconds}s")
         }
     }
 
@@ -170,7 +170,7 @@ class MainViewModel : ViewModel() {
                         o1.nameWithoutExtension.split("_")[1].toInt()
                             .compareTo(o2.nameWithoutExtension.split("_")[1].toInt())
                     }
-                    val res = sortedAudios.mapIndexed { index,audio ->
+                    val res = sortedAudios.mapIndexed { index, audio ->
                         SpeechClient.create(settings).use { speechClient ->
                             try {
                                 measureTimedValue {
@@ -185,7 +185,10 @@ class MainViewModel : ViewModel() {
                                         response.resultsList.joinToString("") { it.alternativesList[0].transcript }
                                     "$results"
                                 }.run {
-                                    Log.d("[APP] Make transcript $index", "${duration.inWholeSeconds}s")
+                                    Log.d(
+                                        "[APP] Make transcript $index",
+                                        "${duration.inWholeSeconds}s"
+                                    )
                                     value
                                 }
                             } catch (e: Exception) {
