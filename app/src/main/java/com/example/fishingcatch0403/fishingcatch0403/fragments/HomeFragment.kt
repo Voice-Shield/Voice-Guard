@@ -11,10 +11,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.fishingcatch0403.MainViewModel
-import com.example.fishingcatch0403.State
-import com.example.fishingcatch0403.WavModel
 import com.example.fishingcatch0403.databinding.FragmentHomeBinding
+import com.example.fishingcatch0403.stt.MainViewModel
+import com.example.fishingcatch0403.stt.State
+import com.example.fishingcatch0403.stt.WavModel
 import com.google.auth.oauth2.GoogleCredentials
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest

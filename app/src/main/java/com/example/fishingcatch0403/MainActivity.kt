@@ -11,8 +11,8 @@ import androidx.navigation.ui.NavigationUI
 import com.example.fishingcatch0403.databinding.ActivityMainBinding
 import com.example.fishingcatch0403.dialer.CallTrackingManager
 import com.example.fishingcatch0403.dialer.DialerManager
-import com.example.fishingcatch0403.fishingcatch0403.fragments.manager.BatteryOptimizationHelper
-import com.example.fishingcatch0403.manager.PermissionManager
+import com.example.fishingcatch0403.system_manager.BatteryOptimizationHelper
+import com.example.fishingcatch0403.system_manager.PermissionManager
 
 // 메인 액티비티 클래스. AppCompatActivity를 상속받습니다.
 class MainActivity : AppCompatActivity() {

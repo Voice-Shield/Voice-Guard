@@ -1,12 +1,13 @@
-package com.example.fishingcatch0403.manager
+package com.example.fishingcatch0403.system_manager
 
 import android.content.Context
 import android.os.Build
-import android.os.Bundle
 import android.os.Environment
 import androidx.annotation.RequiresApi
+import com.google.cloud.speech.v1.RecognitionAudio
+import com.google.cloud.speech.v1.RecognitionConfig
+import com.google.cloud.speech.v1.SpeechClient
 import java.io.File
-import com.google.cloud.speech.v1.*
 import java.nio.file.Files
 import java.nio.file.Paths
 
