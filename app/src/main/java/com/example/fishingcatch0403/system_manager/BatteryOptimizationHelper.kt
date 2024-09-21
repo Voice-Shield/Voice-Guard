@@ -1,4 +1,4 @@
-package com.example.fishingcatch0403.fishingcatch0403.fragments.manager
+package com.example.fishingcatch0403.system_manager
 
 import android.content.Context
 import android.content.Intent

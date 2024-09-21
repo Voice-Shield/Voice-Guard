@@ -34,7 +34,7 @@ class DialerManager(private val context: Context) {
     private fun showAlertDialog() {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("안내")
-            .setMessage("\"전화 앱\"의 \"통화 녹음\"에서 \"통화 자동 녹음\"을 활성화 해주세요.")
+            .setMessage("\"전화 앱\"의 \"통화 설정\"에서 \"통화 녹음\" -> \"통화 자동 녹음\"을 활성화 해주세요.")
             .setPositiveButton("확인") { dialog, _ ->
                 dialog.dismiss()
                 // 전화 앱을 실행하는 인텐트
