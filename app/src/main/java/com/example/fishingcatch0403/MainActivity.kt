@@ -95,11 +95,11 @@ class MainActivity : AppCompatActivity() {
 
     // 권한 요청 결과를 PermissionManager로 전달
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
+        requestCode: Int,   // 요청 코드
+        permissions: Array<String>, // 요청한 권한
+        grantResults: IntArray  // 권한 요청 결과
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionManager.handlePermissionsResult(requestCode, permissions, grantResults)
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)    // 부모 클래스의 메소드 호출
+        permissionManager.handlePermissionsResult(requestCode, permissions, grantResults)   // PermissionManager의 메소드 호출
     }
 }

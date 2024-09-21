@@ -12,16 +12,16 @@ import androidx.appcompat.app.AlertDialog
 
 class BatteryOptimizationHelper(private val context: Context) {
 
-    private val PREFS_NAME = "MyAppPrefs"
-    private val KEY_FIRST_RUN = "first_run"
-    private val sharedPreferences: SharedPreferences =
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val prefsName = "MyAppPrefs"    // SharedPreferences 이름
+    private val firstRun = "first_run"      // 처음 실행 여부를 저장하는 키
+    private val sharedPreferences: SharedPreferences =  // SharedPreferences 인스턴스
+        context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
 
     // 앱이 처음 실행되는지 확인
     fun isFirstRun(): Boolean {
-        val isFirstRun = sharedPreferences.getBoolean(KEY_FIRST_RUN, true)
-        if (isFirstRun) {
-            sharedPreferences.edit().putBoolean(KEY_FIRST_RUN, false).apply()
+        val isFirstRun = sharedPreferences.getBoolean(firstRun, true)   // 처음 실행 여부를 가져옴
+        if (isFirstRun) {   // 처음 실행인 경우
+            sharedPreferences.edit().putBoolean(firstRun, false).apply()    // 처음 실행 여부를 false로 설정
         }
         return isFirstRun
     }
@@ -44,8 +44,8 @@ class BatteryOptimizationHelper(private val context: Context) {
     // 배터리 최적화 예외 설정 화면으로 이동
     private fun requestIgnoreBatteryOptimization() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-            val packageName = context.packageName
+            val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager  // PowerManager 인스턴스
+            val packageName = context.packageName   // 현재 앱의 패키지 이름
 
             // 배터리 최적화에서 이미 예외로 설정된 경우
             if (powerManager.isIgnoringBatteryOptimizations(packageName)) {
@@ -60,6 +60,5 @@ class BatteryOptimizationHelper(private val context: Context) {
             Toast.makeText(context, "Android 6.0 이상에서만 지원됩니다.", Toast.LENGTH_SHORT).show()
         }
     }
-
 }
 
