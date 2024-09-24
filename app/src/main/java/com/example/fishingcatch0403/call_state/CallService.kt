@@ -14,7 +14,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-//private var mediaRecorder: MediaRecorder? = null  // 오디오 녹음을 위한 MediaRecorder 객체
 private var recordingFilePath: String? = null   // 녹음 파일 경로를 저장하는 변수
 private var isRecording = false // 녹음 중인지 여부를 제어하는 플래그
 private lateinit var fileUtil: FileUtil    // 파일 저장을 위한 유틸리티 객체
@@ -62,9 +61,9 @@ class CallService : Service() {
 
     // 수신 전화번호가 주소록에 없는 번호인지 확인하는 함수
     private fun isNumInContacts(context: Context, phoneNumber: String): Boolean {
-        val contentResolver = context.contentResolver
-        val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
-        val projection = arrayOf(
+        val contentResolver = context.contentResolver   // ContentResolver 객체 생성
+        val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI    // 주소록 URI
+        val projection = arrayOf(   // 조회할 컬럼 목록
             ContactsContract.CommonDataKinds.Phone.NUMBER
         )
 
@@ -115,15 +114,18 @@ class CallService : Service() {
                 audioFormat
             )  // 버퍼 크기 계산
 
+            // 버퍼 크기가 유효하지 않은 경우 예외 처리
+            if (bufferSize <= 0) {
+                Log.e("[APP] AudioRecording", "버퍼 크기가 너무 작거나 유효하지 않습니다.")
+                return
+            }
+
             // 저장할 파일의 이름 생성 (전화번호와 시간 정보 포함)
             val fileName = "Recording_Audio_${phoneNumber}_${
-                SimpleDateFormat(
-                    "yyyy.MM.dd_HH:mm:ss",
-                    Locale.getDefault()
-                ).format(Date())
+                SimpleDateFormat("yyyy.MM.dd_HH:mm:ss", Locale.getDefault()).format(Date())
             }.m4a"
             val fileUri = fileUtil.createFileUri(fileName) // 녹음 파일을 저장할 URI 생성
-            recordingFilePath = fileUri.toString() // 녹음 파일 경로 저장
+            recordingFilePath = fileUtil.getRealPathFromUri(context, fileUri) // 녹음 파일 경로 저장
 
             // AudioRecordingThread 스레드 시작
             recordingThread = AudioRecordingThread(
@@ -149,80 +151,4 @@ class CallService : Service() {
             Log.i("[APP] AudioRecording", "녹음 종료: $recordingFilePath")
         }
     }
-
-//    // 녹음 시작 함수
-//    private fun startRecording(context: Context, phoneNumber: String) {
-//        // 현재 녹음 중이 아니라면 녹음을 시작
-//        if (!isRecording) {
-//            // 오디오 포커스 요청
-//            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-//            audioManager.requestAudioFocus(
-//                null,
-//                AudioManager.STREAM_VOICE_CALL,
-//                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
-//            )
-//
-//            // MediaRecorder 객체 생성 및 설정
-//            val recorder =
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
-//            mediaRecorder = recorder.apply {
-//                // 마이크 입력을 소스로 설정
-////                setAudioSource(MediaRecorder.AudioSource.MIC)
-//                setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
-////                    setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION)
-//
-//                // 출력 파일 형식을 mp3로 설정
-//                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-//                // 오디오 인코더를 AMR_NB로 설정
-//                setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-//
-//                setAudioSamplingRate(44100)     // 샘플링 레이트 44100 설정
-////                    setAudioEncodingBitRate(128000)   // 인코딩 비트레이트 128000 설정
-//
-//                // 녹음 파일 이름 생성 (시간과 전화번호를 포함하여 유니크하게 생성)
-//                val fileName = "Recording_Voice_${phoneNumber}_${
-//                    SimpleDateFormat(
-//                        "yyyy.MM.dd_HH:mm:ss",
-//                        Locale.getDefault()
-//                    ).format(Date())
-//                }"
-//                val fileUri = createFileUri(fileName)
-//                recordingFilePath =
-//                    fileUri.toString() // 녹음 파일의 URI를 recordingFilePath에 저장
-//
-//                // MediaRecorder가 녹음할 파일 경로 설정
-//                setOutputFile(getFileDescriptor(fileUri).fileDescriptor)
-//                prepare()  // MediaRecorder 준비
-//            }
-//
-//
-//            mediaRecorder?.runCatching {
-//                start()    // 녹음 시작
-//                isRecording = true // 녹음 상태 업데이트
-//                Log.i("[APP] VoiceRecording", "녹음 시작: $recordingFilePath")
-//            }?.onFailure { e ->
-//                // 녹음 준비 또는 시작 실패 시 예외 처리 및 로그 출력
-//                Log.e("[APP] VoiceRecording", "녹음 준비 또는 시작 실패: ${e.message}")
-//                return
-//            }
-//        }
-//    }
-//
-//    private fun stopRecording() {
-//        if (isRecording) {
-//            try {
-//                mediaRecorder?.run {
-//                    stop()  // 녹음 중지
-//                    reset() // MediaRecorder를 초기 상태로 리셋
-//                    release()  // 리소스 해제
-//                }
-//                mediaRecorder = null // 객체 해제 후 참조 제거
-//                isRecording = false
-//                Log.d("[APP] VoiceRecording", "녹음 종료: $recordingFilePath")
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//                Log.e("[APP] VoiceRecording", "녹음 종료 실패: ${e.message}")
-//            }
-//        }
-//    }
 }
