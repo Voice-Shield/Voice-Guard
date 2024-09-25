@@ -40,14 +40,14 @@ class AudioRecordingThread(
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 Log.e("[APP] AudioRecordingThread", "오디오 녹음을 위한 권한 획득 실패")
-                return
+                return // 권한이 없으면 실행 중단
             }
 
             // AudioRecord 객체 초기화
             audioRecord = AudioRecord(
-                MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+                MediaRecorder.AudioSource.VOICE_CALL,
                 sampleRate,
-                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.CHANNEL_IN_MONO, // 모노 채널
                 audioFormat,
                 bufferSize
             )
@@ -55,7 +55,7 @@ class AudioRecordingThread(
             // AudioRecord 초기화 확인
             if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
                 Log.e("[APP] AudioRecordingThread", "AudioRecord 초기화 실패: $audioRecord")
-                return
+                return // 초기화 실패 시 실행 중단
             }
 
             // MediaMuxer 초기화
@@ -66,7 +66,7 @@ class AudioRecordingThread(
                     MediaMuxer(outputDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
             } else {
                 Log.e("[APP] AudioRecordingThread", "파일 디스크립터 열기 실패")
-                return
+                return // 파일 디스크립터 열기 실패 시 실행 중단
             }
 
             // MediaCodec 초기화
@@ -83,15 +83,15 @@ class AudioRecordingThread(
             }
 
             // MediaCodec 및 AudioRecord 시작
-            mediaCodec?.start()
-            audioRecord?.startRecording()
+            mediaCodec?.start() // 인코더 시작
+            audioRecord?.startRecording() // 녹음 시작
 
             Log.i("[APP] AudioRecordingThread", "녹음 시작")
 
             val audioBuffer = ByteArray(bufferSize) // 오디오 데이터를 저장할 버퍼
             val bufferInfo = MediaCodec.BufferInfo() // MediaCodec 출력 버퍼 정보를 저장할 객체
 
-            isRecordingThread = true
+            isRecordingThread = true // 녹음 스레드 루프 시작
             // 녹음 스레드 루프
             while (isRecordingThread) {
                 // 오디오 데이터 읽기
@@ -111,7 +111,7 @@ class AudioRecordingThread(
                             inputBufferIndex,
                             0,
                             dataToCopy,
-                            System.nanoTime() / 1000,
+                            System.nanoTime() / 1000, // 타임스탬프 추가
                             0
                         )
                     }
@@ -123,20 +123,24 @@ class AudioRecordingThread(
                         if (!muxerStarted) {
                             val newFormat = mediaCodec?.outputFormat
                             trackIndex = newFormat?.let { mediaMuxer?.addTrack(it) } ?: -1
-                            if (trackIndex >= 0) {
-                                mediaMuxer?.start() // Muxer 시작
-                                muxerStarted = true // Muxer가 시작되었음을 기록
-                            } else {
-                                Log.e("[APP] AudioRecordingThread", "MediaMuxer에 트랙 추가 실패")
-                                return
+                            if (newFormat != null) {
+                                trackIndex = mediaMuxer?.addTrack(newFormat) ?: -1
+                                if (trackIndex >= 0) {
+                                    mediaMuxer?.start() // Muxer 시작
+                                    muxerStarted = true // Muxer가 시작되었음을 기록
+                                    Log.i("[APP] AudioRecordingThread", "Muxer 시작됨")
+                                } else {
+                                    Log.e("[APP] AudioRecordingThread", "MediaMuxer에 트랙 추가 실패")
+                                    return // 오류 발생 시 실행 중단
+                                }
                             }
                         }
 
                         // 인코딩된 데이터 Muxer에 쓰기
-                        if (bufferInfo.size > 0) {
+                        if (bufferInfo.size > 0 && muxerStarted) {
                             val encodedData = mediaCodec?.getOutputBuffer(outputBufferIndex)
                             if (encodedData != null) {
-                                mediaMuxer?.writeSampleData(trackIndex, encodedData, bufferInfo)
+                                mediaMuxer?.writeSampleData(trackIndex, encodedData, bufferInfo) // 인코딩된 샘플 데이터 작성
                             }
                             mediaCodec?.releaseOutputBuffer(outputBufferIndex, false) // 출력 버퍼 해제
                         }
@@ -150,6 +154,7 @@ class AudioRecordingThread(
         }
     }
 
+    // 녹음 중지 메서드
     fun stopRecording() {
         isRecordingThread = false // 녹음 스레드 루프 중지 플래그 설정
 
@@ -176,15 +181,12 @@ class AudioRecordingThread(
         }
 
         runCatching {
-            // MediaMuxer가 시작된 경우에만 안전하게 중지
-            mediaMuxer?.let {
-                if (muxerStarted) {
-                    it.stop() // MediaMuxer 중지
-                    Log.i("[APP] AudioRecordingThread", "MediaMuxer가 성공적으로 중지됨")
-                } else {
-                    Log.w("[APP] AudioRecordingThread", "MediaMuxer가 시작되지 않았거나 이미 중지됨")
-                }
-                it.release() // MediaMuxer 리소스 해제
+            // 최소한 하나의 샘플이 작성되었는지 확인
+            if (muxerStarted) {
+                mediaMuxer?.stop() // MediaMuxer 중지
+                Log.i("[APP] AudioRecordingThread", "MediaMuxer가 성공적으로 중지됨")
+            } else {
+                Log.w("[APP] AudioRecordingThread", "MediaMuxer가 시작되지 않았거나 이미 중지됨")
             }
         }.onFailure { e ->
             Log.e("[APP] AudioRecordingThread", "MediaMuxer 중지 중 오류 발생: ${e.message}", e) // 오류 로깅
@@ -194,5 +196,6 @@ class AudioRecordingThread(
         audioRecord = null
         mediaCodec = null
         mediaMuxer = null
+        trackIndex = -1
     }
 }
