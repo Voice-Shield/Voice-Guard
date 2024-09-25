@@ -17,4 +17,15 @@
     <string name="placeholder_13">4. 이번 돈콜미 ui를 만들면서 어쩌구 저쩌구.........\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t...더보기</string>
     <string name="placeholder_14">5. 이번 돈콜미 ui를 만들면서 어쩌구 저쩌구.........\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t...더보기</string>
     <string name="activity_login_signup_message">계정이 없으신가요? 회원가입</string>
+    <string name="ChooseTalker">화자 수를 선택해 주세요</string>
+    <string name="FiveSpeakers">5명</string>
+    <string name="FourSpeakers">4명</string>
+    <string name="ThreeSpeakers">3명</string>
+    <string name="TwoSpeakers">2명</string>
+    <string name="SuggestService">보이스 피싱 방지 서비스를 제공받으시겠습니까?</string>
+    <string name="NoBtn">아니오</string>
+    <string name="ServiceTitle">보이스 피싱 방지</string>
+    <string name="YesBtn">예</string>
+    <string name="CheckBtn">확인</string>
+    <string name="ServiceMessage">통화 진행 시 통화 녹음을 활성화 해주세요</string>
 </resources>
