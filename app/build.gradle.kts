@@ -1,23 +1,22 @@
+
 import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-
 }
 
 buildscript {
     repositories {
         google()
         mavenCentral()
-
     }
 }
 
 dependencies {
-    implementation("com.squareup.okhttp3:okhttp:4.9.0")
-    implementation("com.arthenica:mobile-ffmpeg-full:4.4.LTS")
+    implementation(libs.okhttp)
+    implementation(libs.mobile.ffmpeg.full)
 }
 
 android {
@@ -36,12 +35,6 @@ android {
             assets.srcDirs("src/main/assets")
         }
     }
-    packagingOptions {
-        resources {
-            pickFirsts += setOf("META-INF/INDEX.LIST", "META-INF/DEPENDENCIES")
-        }
-    }
-
 
     namespace = "com.example.fishingcatch0403"
     compileSdk = 34
@@ -65,21 +58,28 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
 
+    packaging {
+        resources {
+            excludes += setOf("META-INF/INDEX.LIST", "META-INF/DEPENDENCIES")
+        }
+    }
 
     dependencies {
-        val nav_version = "2.7.7"
-        val lifecycle_version = "2.8.4"
+        val navVer = "2.7.7"
+        val lifeCycleVer = "2.8.4"
 
-        implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
-        implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
+        implementation("androidx.navigation:navigation-fragment-ktx:$navVer")
+        implementation("androidx.navigation:navigation-ui-ktx:$navVer")
         implementation(libs.androidx.core.ktx)
         implementation(libs.androidx.appcompat)
         implementation(libs.material)
@@ -99,7 +99,6 @@ android {
         implementation("com.google.cloud:libraries-bom:26.2.0")
 
         // ViewModel
-        implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+        implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifeCycleVer")
     }
-
 }

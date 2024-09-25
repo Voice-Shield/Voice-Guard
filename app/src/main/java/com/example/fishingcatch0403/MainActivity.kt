@@ -20,10 +20,10 @@ class MainActivity : AppCompatActivity() {
     // 뷰 바인딩을 위한 변수 선언. 나중에 초기화됩니다.
     private lateinit var binding: ActivityMainBinding
 
-    // 다이얼러 매니저와 콜 트래킹 매니저 객체를 선언합니다. (녹음 기능 완료 시 삭제 예정)
+    // 다이얼러 매니저와 콜 트래킹 매니저 객체를 선언합니다.
     private lateinit var dialerManager: DialerManager
 
-    // 콜 트래킹 매니저 객체를 선언합니다. (녹음 기능 완료 시 삭제 예정)
+    // 콜 트래킹 매니저 객체를 선언합니다.
     private lateinit var callTrackingManager: CallTrackingManager
 
     // 액티비티 런처를 선언합니다.
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
                 // 뷰 바인딩을 사용하여 레이아웃을 설정합니다.
             }
 
-        // 객체 초기화 (녹음 기능 완료 시 삭제 예정)
+        // 객체 초기화
         dialerManager = DialerManager(this)
         callTrackingManager = CallTrackingManager(this)
 

@@ -15,7 +15,6 @@ import androidx.core.content.ContextCompat
 class PermissionManager(val context: Context) {
 
     // 필요한 권한들을 문자열로 선언합니다.
-    private val recordPermission = android.Manifest.permission.RECORD_AUDIO
     private val statePermission = android.Manifest.permission.READ_PHONE_STATE
     private val audioPermission = android.Manifest.permission.READ_MEDIA_AUDIO
     private val contactPermission = android.Manifest.permission.READ_CONTACTS
@@ -23,14 +22,14 @@ class PermissionManager(val context: Context) {
     private val readPermission = android.Manifest.permission.READ_EXTERNAL_STORAGE
     private val readCallLogPermission = android.Manifest.permission.READ_CALL_LOG
     private val notificationPermission = android.Manifest.permission.POST_NOTIFICATIONS
+    private val overlayPermission = Settings.ACTION_MANAGE_OVERLAY_PERMISSION // 오버레이 권한을 위한 액션
 
     // 권한을 확인하고 요청하는 메소드
     fun checkPermissions() {
         // context를 Activity로 캐스팅
         val activity = context as? Activity ?: return
 
-        val isRecordOK = ContextCompat.checkSelfPermission(activity, recordPermission) ==
-                PackageManager.PERMISSION_GRANTED
+        // 개별 권한 상태를 확인합니다.
         val isStateOK = ContextCompat.checkSelfPermission(activity, statePermission) ==
                 PackageManager.PERMISSION_GRANTED
         val isAudioOK = ContextCompat.checkSelfPermission(activity, audioPermission) ==
@@ -50,18 +49,32 @@ class PermissionManager(val context: Context) {
             true
         }
 
+        // 오버레이 권한 확인
+        val isOverlayOK = Settings.canDrawOverlays(activity)
+
+        // 요청할 권한 목록을 저장하는 리스트
         val permissionsToRequest = mutableListOf<String>()
 
+        // Android 33 버전 이상일 때의 권한 처리
         when {
             Build.VERSION.SDK_INT >= 33 -> {
-                if (!isRecordOK || !isAudioOK || !isStorageOK || !isStateOK || !isContactOK || !isCallLogOK || !isNotificationOK) {
-                    if (!isRecordOK) permissionsToRequest.add(recordPermission)
+                if (!isAudioOK || !isStorageOK || !isStateOK || !isContactOK || !isCallLogOK || !isNotificationOK || !isOverlayOK) {
+                    // 필요한 권한들을 리스트에 추가
                     if (!isAudioOK) permissionsToRequest.add(audioPermission)
                     if (!isStateOK) permissionsToRequest.add(statePermission)
                     if (!isContactOK) permissionsToRequest.add(contactPermission)
                     if (!isCallLogOK) permissionsToRequest.add(readCallLogPermission)
                     if (!isNotificationOK) permissionsToRequest.add(notificationPermission)
+                    if (!isOverlayOK) {
+                        // 오버레이 권한 요청을 위한 인텐트 시작
+                        val intent = Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:${activity.packageName}")
+                        )
+                        activity.startActivityForResult(intent, 1001)
+                    }
                     if (permissionsToRequest.isNotEmpty()) {
+                        // 필요한 권한 요청
                         ActivityCompat.requestPermissions(
                             activity,
                             permissionsToRequest.toTypedArray(),
@@ -71,18 +84,28 @@ class PermissionManager(val context: Context) {
                 }
             }
 
+            // Android 30 이상일 때의 권한 처리
             Build.VERSION.SDK_INT >= 30 -> {
-                if (!isRecordOK || !isStorageOK || !isStateOK || !isContactOK || !isReadOK) {
+                if (!isStorageOK || !isStateOK || !isContactOK || !isReadOK || !isOverlayOK) {
                     if (!Environment.isExternalStorageManager()) {
+                        // 모든 파일 접근 권한 요청
                         val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
                         intent.data = Uri.parse("package:${activity.packageName}")
                         activity.startActivity(intent)
                     } else {
-                        if (!isRecordOK) permissionsToRequest.add(recordPermission)
                         if (!isStateOK) permissionsToRequest.add(statePermission)
                         if (!isContactOK) permissionsToRequest.add(contactPermission)
                         if (!isReadOK) permissionsToRequest.add(readPermission)
+                        if (!isOverlayOK) {
+                            // 오버레이 권한 요청을 위한 인텐트 시작
+                            val intent = Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:${activity.packageName}")
+                            )
+                            activity.startActivityForResult(intent, 1001)
+                        }
                         if (permissionsToRequest.isNotEmpty()) {
+                            // 필요한 권한 요청
                             ActivityCompat.requestPermissions(
                                 activity,
                                 permissionsToRequest.toTypedArray(),
@@ -93,15 +116,24 @@ class PermissionManager(val context: Context) {
                 }
             }
 
+            // 그 외 버전에서의 권한 처리
             else -> {
-                if (!isRecordOK || !isStorageOK || !isReadOK || !isStateOK || !isContactOK || !isCallLogOK) {
-                    if (!isRecordOK) permissionsToRequest.add(recordPermission)
+                if (!isStorageOK || !isReadOK || !isStateOK || !isContactOK || !isCallLogOK || !isOverlayOK) {
                     if (!isStorageOK) permissionsToRequest.add(storagePermission)
                     if (!isReadOK) permissionsToRequest.add(readPermission)
                     if (!isStateOK) permissionsToRequest.add(statePermission)
                     if (!isContactOK) permissionsToRequest.add(contactPermission)
                     if (!isCallLogOK) permissionsToRequest.add(readCallLogPermission)
+                    if (!isOverlayOK) {
+                        // 오버레이 권한 요청을 위한 인텐트 시작
+                        val intent = Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:${activity.packageName}")
+                        )
+                        activity.startActivityForResult(intent, 1001)
+                    }
                     if (permissionsToRequest.isNotEmpty()) {
+                        // 필요한 권한 요청
                         ActivityCompat.requestPermissions(
                             activity,
                             permissionsToRequest.toTypedArray(),
@@ -151,6 +183,14 @@ class PermissionManager(val context: Context) {
                     "필수 권한이 거부되었습니다. 앱의 기능을 사용하기 위해서는 권한이 필요합니다.",
                     Toast.LENGTH_LONG
                 ).show()
+            }
+        }
+
+        if (requestCode == 1001) { // 오버레이 권한 처리
+            if (!Settings.canDrawOverlays(activity)) {
+                Toast.makeText(activity, "오버레이 권한이 거부되었습니다.", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(activity, "오버레이 권한이 허용되었습니다.", Toast.LENGTH_LONG).show()
             }
         }
     }
