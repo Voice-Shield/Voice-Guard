@@ -15,7 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.fishingcatch0403.BuildConfig
 import com.example.fishingcatch0403.R
-import com.example.fishingcatch0403.fishingcatch0403.fragments.manager.AnalyzeChatGpt
+import com.example.fishingcatch0403.analyzetxt.AnalyzeTxT
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
@@ -25,7 +25,7 @@ class RecentsFragment : Fragment() {
 
     private var listViewAdapter: ArrayAdapter<String>? = null   // ListView에 사용할 Adapter
     private val fileList = ArrayList<String>()  // 파일 목록을 저장할 ArrayList
-    private lateinit var analyzeChatGpt: AnalyzeChatGpt // ChatGpt 객체
+    private lateinit var analyzeTxT: AnalyzeTxT // ChatGpt 객체
 
     override fun onCreateView(
         inflater: LayoutInflater,   // LayoutInflater: XML 레이아웃을 코드로 변환하는 역할
@@ -44,7 +44,7 @@ class RecentsFragment : Fragment() {
         listView.adapter = listViewAdapter
 
         // ChatGpt 객체 생성
-        analyzeChatGpt = AnalyzeChatGpt(requireContext())
+        analyzeTxT = AnalyzeTxT(requireContext())
 
         // ListView의 아이템을 클릭했을 때 이벤트 처리
         listView.setOnItemClickListener { parent, view, position, id ->
@@ -119,10 +119,10 @@ class RecentsFragment : Fragment() {
     private fun analyze(fileName: String) {
         val apiKey = BuildConfig.API_KEY // OpenAI API 키
 
-        val textContent = analyzeChatGpt.readTextFile(fileName) // 텍스트 파일을 읽어옵니다.
+        val textContent = analyzeTxT.readTextFile(fileName) // 텍스트 파일을 읽어옵니다.
         Log.d("Phishing", "텍스트 파일 내용: $textContent")    // 텍스트 파일 내용을 로그로 출력합니다.
 
-        analyzeChatGpt.sendTextToChatGPT(
+        analyzeTxT.sendTextToChatGPT(
             apiKey,
             textContent
         ) { response, error -> // ChatGPT API로 텍스트를 전송합니다.
@@ -134,7 +134,7 @@ class RecentsFragment : Fragment() {
             }
             Log.d("Phishing", "ChatGPT 응답: $response")
             if (response != null) { // ChatGPT 응답을 받은 경우
-                analyzeChatGpt.analyzeResponse(response)   // ChatGPT 응답을 분석합니다.
+                analyzeTxT.analyzeResponse(response)   // ChatGPT 응답을 분석합니다.
                 { isPhishing, analysis -> // 보이스피싱 여부를 판단합니다.
                     if (isPhishing) {
                         Toast.makeText(requireContext(), "보이스피싱 가능성이 있습니다.", Toast.LENGTH_LONG)

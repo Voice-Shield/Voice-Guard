@@ -1,4 +1,4 @@
-package com.example.fishingcatch0403.fishingcatch0403.fragments.manager
+package com.example.fishingcatch0403.analyzetxt
 
 import android.content.Context
 import android.os.Environment
@@ -17,7 +17,7 @@ import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 
-class AnalyzeChatGpt(private val context: Context) {
+class AnalyzeTxT(private val context: Context) {
     private val client = OkHttpClient() // OkHttpClient 객체를 생성합니다.
 
     fun readTextFile(filePath: String): String { // 텍스트 파일을 읽어오는 함수
