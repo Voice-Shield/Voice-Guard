@@ -1,7 +1,10 @@
 package com.example.fishingcatch0403.analyzetxt
 
+import android.app.Service
 import android.content.Context
+import android.content.Intent
 import android.os.Environment
+import android.os.IBinder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,7 +20,10 @@ import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 
-class AnalyzeTxT(private val context: Context) {
+class AnalyzeTxT : Service() {
+
+    private lateinit var context:Context
+
     private val client = OkHttpClient() // OkHttpClient 객체를 생성합니다.
 
     fun readTextFile(filePath: String): String { // 텍스트 파일을 읽어오는 함수
@@ -114,5 +120,9 @@ class AnalyzeTxT(private val context: Context) {
         } else {
             emptyList()
         }
+    }
+
+    override fun onBind(p0: Intent?): IBinder? {
+        TODO("Not yet implemented")
     }
 }
