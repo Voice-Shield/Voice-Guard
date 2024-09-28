@@ -44,7 +44,7 @@ class RecentsFragment : Fragment() {
         listView.adapter = listViewAdapter
 
         // ChatGpt 객체 생성
-        analyzeTxT = AnalyzeTxT(requireContext())
+//        analyzeTxT = AnalyzeTxT(requireContext())
 
         // ListView의 아이템을 클릭했을 때 이벤트 처리
         listView.setOnItemClickListener { parent, view, position, id ->

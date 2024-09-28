@@ -1,4 +1,3 @@
-
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -15,8 +14,8 @@ buildscript {
 }
 
 dependencies {
-    implementation(libs.okhttp)
-    implementation(libs.mobile.ffmpeg.full)
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation("com.arthenica:mobile-ffmpeg-full:4.4.LTS")
 }
 
 android {
@@ -24,6 +23,8 @@ android {
     val properties = Properties()
     properties.load(FileInputStream(rootProject.file("local.properties")))
     val apiKey: String = properties.getProperty("api_key")
+    val secretKey: String = properties.getProperty("secret_key")
+    val invokeUrl: String = properties.getProperty("invoke_url")
 
     buildFeatures {
         viewBinding = true
@@ -46,6 +47,8 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "API_KEY", apiKey)
+        buildConfigField("String", "SECRET_KEY", secretKey)
+        buildConfigField("String", "INVOKE_URL", invokeUrl)
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -86,7 +89,6 @@ android {
         implementation(libs.androidx.activity)
         implementation(libs.androidx.constraintlayout)
         testImplementation(libs.junit)
-        testImplementation(libs.coroutine)
         androidTestImplementation(libs.androidx.junit)
         androidTestImplementation(libs.androidx.espresso.core)
 
@@ -97,6 +99,11 @@ android {
         implementation("io.grpc:grpc-stub:1.51.0")
         implementation("com.google.api:gax:2.22.0")
         implementation("com.google.cloud:libraries-bom:26.2.0")
+
+        // ClovaSpeech
+        implementation("org.apache.httpcomponents:httpclient:4.5.12")
+        implementation("org.apache.httpcomponents:httpmime:4.3.1")
+        implementation("com.google.code.gson:gson:2.8.5")
 
         // ViewModel
         implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifeCycleVer")
