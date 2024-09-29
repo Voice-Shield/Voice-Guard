@@ -11,7 +11,9 @@ import androidx.navigation.ui.NavigationUI
 import com.example.fishingcatch0403.databinding.ActivityMainBinding
 import com.example.fishingcatch0403.dialer.CallTrackingManager
 import com.example.fishingcatch0403.dialer.DialerManager
+import com.example.fishingcatch0403.rest_api.ApiController
 import com.example.fishingcatch0403.system_manager.BatteryOptimizationHelper
+import com.example.fishingcatch0403.system_manager.FileUtil
 import com.example.fishingcatch0403.system_manager.PermissionManager
 
 // 메인 액티비티 클래스. AppCompatActivity를 상속받습니다.
@@ -35,6 +37,9 @@ class MainActivity : AppCompatActivity() {
     // 절전 모드 방지 도우미 객체를 선언합니다.
     private lateinit var batteryOptimizationHelper: BatteryOptimizationHelper
 
+//    // STTProcessor를 lateinit으로 선언
+//    private lateinit var sttProcessor: STTProcessor
+
     // 액티비티가 생성될 때 호출되는 메소드.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +56,13 @@ class MainActivity : AppCompatActivity() {
         // 객체 초기화
         dialerManager = DialerManager(this)
         callTrackingManager = CallTrackingManager(this)
+
+        //  STT 테스트용 코드
+        FileUtil(contentResolver).getLatestRecordingFile()?.run{
+            ApiController().getSTTResult(this)
+        }
+//        sttProcessor = STTProcessor(contentResolver)
+//        sttProcessor.recognizeSpeech(this, 2, "010-1234-5678")
 
         // 다이얼러 시작 여부 확인 후, 시작되지 않았다면 시작 (녹음 기능 완료 시 삭제 예정)
         if (!callTrackingManager.isStartDialerCalled()) {
@@ -91,6 +103,8 @@ class MainActivity : AppCompatActivity() {
         if (batteryOptimizationHelper.isFirstRun()) {
             batteryOptimizationHelper.showBatteryOptimizationDialog()
         }
+
+
     }
 
     // 권한 요청 결과를 PermissionManager로 전달
@@ -99,7 +113,15 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<String>, // 요청한 권한
         grantResults: IntArray  // 권한 요청 결과
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)    // 부모 클래스의 메소드 호출
-        permissionManager.handlePermissionsResult(requestCode, permissions, grantResults)   // PermissionManager의 메소드 호출
+        super.onRequestPermissionsResult(
+            requestCode,
+            permissions,
+            grantResults
+        )    // 부모 클래스의 메소드 호출
+        permissionManager.handlePermissionsResult(
+            requestCode,
+            permissions,
+            grantResults
+        )   // PermissionManager의 메소드 호출
     }
 }
