@@ -101,9 +101,11 @@ android {
         implementation("com.google.cloud:libraries-bom:26.2.0")
 
         // ClovaSpeech
-        implementation("org.apache.httpcomponents:httpclient:4.5.12")
-        implementation("org.apache.httpcomponents:httpmime:4.3.1")
-        implementation("com.google.code.gson:gson:2.8.5")
+        implementation(libs.retrofit)
+        implementation(libs.converter.gson)
+        implementation(libs.converter.scalar)
+        implementation(libs.okhttp3.okhttp)
+        implementation(libs.logging.interceptor)
 
         // ViewModel
         implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifeCycleVer")

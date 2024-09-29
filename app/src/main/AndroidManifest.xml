@@ -37,6 +37,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FishingCatch0403"
+        android:usesCleartextTraffic="true"
         tools:ignore="ExtraText">
         <activity
             android:name=".MainActivity"

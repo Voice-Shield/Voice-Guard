@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import com.example.fishingcatch0403.R
 import com.example.fishingcatch0403.stt.STTService
 
 //private var recordingFilePath: String? = null   // 녹음 파일 경로를 저장하는 변수
@@ -67,7 +68,7 @@ class CallService : Service() {
         val notification = Notification.Builder(this, "CallServiceChannel")
             .setContentTitle("서비스 제공중")
             .setContentText("보이스 피싱 방지 서비스 제공 중 입니다")
-            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+            .setSmallIcon(R.drawable.shield)
             .setContentIntent(pendingIntent)
             .build()
 
