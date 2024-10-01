@@ -14,8 +14,8 @@ buildscript {
 }
 
 dependencies {
-    implementation("com.squareup.okhttp3:okhttp:4.9.0")
-    implementation("com.arthenica:mobile-ffmpeg-full:4.4.LTS")
+    implementation(libs.okhttp.v490)
+    implementation(libs.mobile.ffmpeg.full)
 }
 
 android {
@@ -78,11 +78,8 @@ android {
     }
 
     dependencies {
-        val navVer = "2.7.7"
-        val lifeCycleVer = "2.8.4"
-
-        implementation("androidx.navigation:navigation-fragment-ktx:$navVer")
-        implementation("androidx.navigation:navigation-ui-ktx:$navVer")
+        implementation(libs.androidx.navigation.fragment.ktx)
+        implementation(libs.androidx.navigation.ui.ktx)
         implementation(libs.androidx.core.ktx)
         implementation(libs.androidx.appcompat)
         implementation(libs.material)
@@ -92,13 +89,13 @@ android {
         androidTestImplementation(libs.androidx.junit)
         androidTestImplementation(libs.androidx.espresso.core)
 
-        implementation("com.google.cloud:google-cloud-speech:4.2.0")
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
-        implementation("com.google.auth:google-auth-library-oauth2-http:1.14.0")
-        implementation("io.grpc:grpc-okhttp:1.51.0")
-        implementation("io.grpc:grpc-stub:1.51.0")
-        implementation("com.google.api:gax:2.22.0")
-        implementation("com.google.cloud:libraries-bom:26.2.0")
+        implementation(libs.google.cloud.speech)
+        implementation(libs.kotlinx.coroutines.android)
+        implementation(libs.google.auth.library.oauth2.http)
+        implementation(libs.grpc.okhttp)
+        implementation(libs.grpc.stub)
+        implementation(libs.gax)
+        implementation(libs.libraries.bom)
 
         // ClovaSpeech
         implementation(libs.retrofit)
@@ -108,6 +105,6 @@ android {
         implementation(libs.logging.interceptor)
 
         // ViewModel
-        implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifeCycleVer")
+        implementation(libs.androidx.lifecycle.viewmodel.ktx)
     }
 }
