@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
-import android.util.Log
 import java.io.File
 import java.io.IOException
 
@@ -84,14 +83,9 @@ class FileUtil(private val contentResolver: ContentResolver) {
             if (m4aFiles != null && m4aFiles.isNotEmpty()) {
                 // 가장 최근에 수정된 m4a 파일 찾기
                 val latestFile = m4aFiles.maxByOrNull { it.lastModified() }
-
-                // 최근 파일 이름을 로그에 출력
-                Log.d("[APP] FileUtil", "최근 저장된 m4a 파일: ${latestFile?.name}")
-
                 return latestFile // 가장 최근의 파일 반환
             }
         }
-
         return null // 폴더가 없거나 m4a 파일이 없을 경우
     }
 }

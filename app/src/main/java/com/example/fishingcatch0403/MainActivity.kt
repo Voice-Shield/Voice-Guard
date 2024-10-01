@@ -1,8 +1,10 @@
 package com.example.fishingcatch0403
 
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -12,33 +14,22 @@ import com.example.fishingcatch0403.databinding.ActivityMainBinding
 import com.example.fishingcatch0403.dialer.CallTrackingManager
 import com.example.fishingcatch0403.dialer.DialerManager
 import com.example.fishingcatch0403.rest_api.ApiController
+import com.example.fishingcatch0403.rest_api.SttResultCallback
+import com.example.fishingcatch0403.stt.notificationManager
 import com.example.fishingcatch0403.system_manager.BatteryOptimizationHelper
 import com.example.fishingcatch0403.system_manager.FileUtil
 import com.example.fishingcatch0403.system_manager.PermissionManager
 
-// 메인 액티비티 클래스. AppCompatActivity를 상속받습니다.
 class MainActivity : AppCompatActivity() {
 
-    // 뷰 바인딩을 위한 변수 선언. 나중에 초기화됩니다.
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding   // 뷰 바인딩을 위한 변수
+    private lateinit var dialerManager: DialerManager   // 다이얼러 매니저와 콜 트래킹 매니저 객체
+    private lateinit var callTrackingManager: CallTrackingManager   // 콜 트래킹 매니저 객체
+    private lateinit var activityLauncher: ActivityResultLauncher<Intent>   // 액티비티 런처
+    private lateinit var permissionManager: PermissionManager   // 권한 매니저 객체
+    private lateinit var batteryOptimizationHelper: BatteryOptimizationHelper   // 절전 모드 방지 도우미 객체
 
-    // 다이얼러 매니저와 콜 트래킹 매니저 객체를 선언합니다.
-    private lateinit var dialerManager: DialerManager
-
-    // 콜 트래킹 매니저 객체를 선언합니다.
-    private lateinit var callTrackingManager: CallTrackingManager
-
-    // 액티비티 런처를 선언합니다.
-    private lateinit var activityLauncher: ActivityResultLauncher<Intent>
-
-    // 권한 매니저 객체를 선언합니다.
-    private lateinit var permissionManager: PermissionManager
-
-    // 절전 모드 방지 도우미 객체를 선언합니다.
-    private lateinit var batteryOptimizationHelper: BatteryOptimizationHelper
-
-//    // STTProcessor를 lateinit으로 선언
-//    private lateinit var sttProcessor: STTProcessor
+    private lateinit var apiController: ApiController   // STT 테스트를 위한 객체 (삭제 예정)
 
     // 액티비티가 생성될 때 호출되는 메소드.
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,16 +44,24 @@ class MainActivity : AppCompatActivity() {
                 // 뷰 바인딩을 사용하여 레이아웃을 설정합니다.
             }
 
+        //  STT 테스트용 코드(삭제 예정)
+        apiController = ApiController()
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        apiController.initProgressBarManager(this)
+        FileUtil(contentResolver).getLatestRecordingFile()?.run {
+            ApiController().getSTTResult(this@MainActivity, this, object : SttResultCallback {
+                override fun onSuccess(result: String) {
+                    Toast.makeText(this@MainActivity, result, Toast.LENGTH_LONG).show()
+                }
+                override fun onError(errorMessage: String) {
+                    Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+
         // 객체 초기화
         dialerManager = DialerManager(this)
         callTrackingManager = CallTrackingManager(this)
-
-        //  STT 테스트용 코드
-        FileUtil(contentResolver).getLatestRecordingFile()?.run{
-            ApiController().getSTTResult(this)
-        }
-//        sttProcessor = STTProcessor(contentResolver)
-//        sttProcessor.recognizeSpeech(this, 2, "010-1234-5678")
 
         // 다이얼러 시작 여부 확인 후, 시작되지 않았다면 시작 (녹음 기능 완료 시 삭제 예정)
         if (!callTrackingManager.isStartDialerCalled()) {
@@ -70,8 +69,6 @@ class MainActivity : AppCompatActivity() {
             dialerManager.startDialer(activityLauncher)
             // 다이얼러 시작 여부 저장
             callTrackingManager.markStartDialerCalled()
-            // 다이얼러 시작 여부 로그 출력
-            Log.d("[APP] dialer_start", "다이얼러 시작 여부: ${callTrackingManager.isStartDialerCalled()}")
         } else initScreen()
     }
 

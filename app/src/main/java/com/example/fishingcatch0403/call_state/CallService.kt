@@ -1,6 +1,5 @@
 package com.example.fishingcatch0403.call_state
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -13,15 +12,11 @@ import android.util.Log
 import com.example.fishingcatch0403.R
 import com.example.fishingcatch0403.stt.STTService
 
-//private var recordingFilePath: String? = null   // 녹음 파일 경로를 저장하는 변수
-//private lateinit var fileUtil: FileUtil    // 파일 저장을 위한 유틸리티 객체
 private var phoneNumber: String? = null
 
 class CallService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
-//        fileUtil = FileUtil(contentResolver)  // FileUtil 인스턴스 생성
 
         // 수신 전화번호가 전달되었을 경우
         intent?.let {
@@ -45,19 +40,17 @@ class CallService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        phoneNumber?.let { startClovaStt(this, it) }
+        startClovaStt(this)
         Log.d("[APP] CallService", "CallService 종료")
     }
 
     // Clova STT 서비스 시작 함수
-    private fun startClovaStt(context: Context, phoneNumber: String) {
+    private fun startClovaStt(context: Context) {
         val intent = Intent(context, STTService::class.java)
-        intent.putExtra("phoneNumber", phoneNumber)
         context.startService(intent)
     }
 
     // 포그라운드 서비스 알림 생성
-    @SuppressLint("ForegroundServiceType")
     private fun startForegroundService() {
         val notificationIntent = Intent(this, CallService::class.java)
         val pendingIntent = PendingIntent.getService(

@@ -5,14 +5,14 @@
     android:padding="10dp">
 
     <TextView
-        android:id="@+id/progress_text"
+        android:id="@+id/progressText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/ActiveSituation"
         android:textSize="14sp" />
 
     <ProgressBar
-        android:id="@+id/progress_bar"
+        android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
