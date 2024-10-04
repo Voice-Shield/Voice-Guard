@@ -1,15 +1,12 @@
 package com.example.fishingcatch0403.stt
 
-import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.IBinder
 import android.util.Log
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.example.fishingcatch0403.R
 import com.example.fishingcatch0403.rest_api.ApiController
@@ -21,55 +18,59 @@ import com.example.fishingcatch0403.system_manager.ProgressBarManager
 lateinit var notificationManager: NotificationManager
 const val notificationId = 1
 const val CHANNEL_ID = "STTServiceChannel"
-lateinit var apiController: ApiController
 
 class STTService : Service() {
 
     private lateinit var progressBarManager: ProgressBarManager
+    private lateinit var apiController: ApiController
 
     override fun onCreate() {
         super.onCreate()
-        Log.d("[APP] STTService", "STTService 생성")
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        apiController = ApiController()
+
         // ProgressBarManager 초기화
-        apiController.initProgressBarManager(this)
+        initProgressBarManager()
+
         createNotificationChannel() // 알림 채널 생성
         startForegroundService() // Foreground Service 시작
     }
 
+    private fun initProgressBarManager() {
+        progressBarManager =
+            ProgressBarManager(this, notificationManager, notificationId, CHANNEL_ID)
+        apiController.initProgressBarManager(progressBarManager) // ApiController에 ProgressBarManager 전달
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        analyzeRecording(this)
+        analyzeRecording()
         return START_NOT_STICKY // 서비스는 강제로 종료된 후 자동으로 재시작되지 않음
     }
 
-    override fun onBind(intent: Intent): IBinder? {
-        return null // 바인딩 하지 않기 때문에 null 반환
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("[APP] STTSService", "STTService 종료")
-    }
-
     // 녹음 파일 분석
-    private fun analyzeRecording(context: Context) {
+    private fun analyzeRecording() {
         Log.d("[APP] STTService", "녹음 파일 분석 시작")
+        // FileUtil로 최신 녹음 파일을 가져옴
         FileUtil(contentResolver).getLatestRecordingFile()?.run {
-            ApiController().getSTTResult(context, this, object : SttResultCallback {
+            progressBarManager.startProgressUpdate(5000) // ProgressBar 시작
+            // STT API를 호출하여 음성을 텍스트로 변환
+            apiController.getSTTResult(this, object : SttResultCallback {
                 override fun onSuccess(result: String) {
                     Log.d("[APP] STTService", "STT 결과: $result")
-                    progressBarManager.stopProgressUpdate()
-                    progressBarManager.updateProgressBar(100)  // 완료 시 100%
-                    updateNotificationR(result)
+                    notificationManager.cancelAll()
+                    showResultNotification(result)
                 }
 
                 override fun onError(errorMessage: String) {
                     Log.e("[APP] STTService", "STT 오류: $errorMessage")
-                    progressBarManager.stopProgressUpdate()
-                    progressBarManager.updateProgressBar(0)  // 실패 시 0%
-                    updateNotificationR("STT 오류: $errorMessage")
+                    notificationManager.cancelAll()
+                    showResultNotification("STT 오류: $errorMessage")
                 }
             })
+        } ?: run {
+            // 파일이 없을 경우 로그 출력
+            Log.e("[APP] STTService", "녹음 파일을 찾을 수 없습니다.")
+            showResultNotification("녹음 파일을 찾을 수 없습니다.")
         }
     }
 
@@ -86,7 +87,7 @@ class STTService : Service() {
     }
 
     // 음성 인식 결과에 따른 알림 업데이트
-    private fun updateNotificationR(result: String) {
+    private fun showResultNotification(result: String) {
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("음성 인식 결과")
             .setContentText(result) // 음성 인식 결과를 알림으로 설정
@@ -95,12 +96,10 @@ class STTService : Service() {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
 
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
+        notificationManager.notify(
+            notificationId,
+            notification
         )
-            notificationManager.notify(notificationId, notification)
     }
 
     // 알림 채널 생성
@@ -113,5 +112,13 @@ class STTService : Service() {
 
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(serviceChannel)
+    }
+
+    override fun onBind(intent: Intent): IBinder? {
+        return null // 바인딩 하지 않기 때문에 null 반환
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 }
