@@ -1,16 +1,10 @@
 package com.example.fishingcatch0403.rest_api
 
-import android.content.Context
-import android.util.Log
 import com.example.fishingcatch0403.BuildConfig
-import com.example.fishingcatch0403.stt.CHANNEL_ID
-import com.example.fishingcatch0403.stt.notificationId
-import com.example.fishingcatch0403.stt.notificationManager
 import com.example.fishingcatch0403.system_manager.ProgressBarManager
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -22,21 +16,19 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.util.concurrent.TimeUnit
-import kotlin.math.min
 
 // STT 결과 값 출력을 위한 인터페이스
 interface SttResultCallback {
     fun onSuccess(result: String)
     fun onError(errorMessage: String)
 }
-
+var isSTTResultReceived = false
 class ApiController() {
     private lateinit var progressBarManager: ProgressBarManager
 
-    // 초기화 메서드
-    fun initProgressBarManager(context: Context) {
-        progressBarManager =
-            ProgressBarManager(context, notificationManager, notificationId, CHANNEL_ID)
+    // ProgressBarManager 초기화 메서드
+    fun initProgressBarManager(manager: ProgressBarManager) {
+        progressBarManager = manager
     }
 
     // Gson 컨버터
@@ -63,11 +55,7 @@ class ApiController() {
     }
 
     // STT 요청
-    fun getSTTResult(context: Context, audioFile: File, callback: SttResultCallback) {
-        if (!::progressBarManager.isInitialized) {
-            initProgressBarManager(context)
-            Log.e("[APP] ApiController", "progressBarManager가 초기화되지 않았습니다.")
-        }
+    fun getSTTResult(audioFile: File, callback: SttResultCallback) {
         // STT API 서비스
         val sttService = retrofitClient.create(STTApiService::class.java)
         val convertedAudioFile = MultipartBody.Part.createFormData(
@@ -90,26 +78,14 @@ class ApiController() {
 
         // STT 요청
         CoroutineScope(Dispatchers.IO).launch {
-            val startTime = System.currentTimeMillis() // STT 요청 시작 시간 기록
-
             // STT 요청
             val res = sttService.recognizeSpeech(
                 audioFile = convertedAudioFile,
                 params = params,
                 resContentType = "application/json".toTextReqBody()
             )
-
-            // 요청이 완료될 때까지 대기
-            while (true) {
-                // 경과 시간 계산
-                val elapsedTime = System.currentTimeMillis() - startTime
-
-                // 실제 소요 시간에 맞춰 ProgressBar 업데이트
-                val progress =
-                    (elapsedTime * 100 / (elapsedTime + 5000)).toInt() // 5000ms를 더해 소요 시간 기준으로 비율 계산
-                progressBarManager.updateProgressBar(min(progress, 100))
-
-                // STT 응답 처리
+            // STT 응답 처리
+            withContext(Dispatchers.Main) {
                 if (res.isSuccessful) {
                     val data = res.body()
                     data?.run {
@@ -129,31 +105,15 @@ class ApiController() {
                                 }
                             }
                         }
-                        // STT 결과 출력(텍스트 출력)
-                        Log.d("[APP] stt", res)
-
-                        withContext(Dispatchers.Main) {
-                            // ProgressBar 업데이트 중지
-                            progressBarManager.stopProgressUpdate()
-                            // 실제 소요 시간으로 ProgressBar를 완료 상태로 업데이트
-                            progressBarManager.updateProgressBar(100)
-
-                            callback.onSuccess(res)
-                        }
+                        isSTTResultReceived = true
+                        progressBarManager.updateProgressBar(100)
+                        callback.onSuccess(res) // STT 내용 콜백
                     }
-                    break
                 } else {
                     val errorBody = res.errorBody()?.string() ?: "Unknown error"
-                    Log.e("[APP] stt", errorBody)
-                    withContext(Dispatchers.Main) {
-                        progressBarManager.stopProgressUpdate()
-                        progressBarManager.updateProgressBar(0)
-                        callback.onError(errorBody)
-                    }
-                    break
+                    progressBarManager.updateProgressBar(0)
+                    callback.onError(errorBody)
                 }
-                // 100ms 간격으로 업데이트
-                delay(100)
             }
         }
     }

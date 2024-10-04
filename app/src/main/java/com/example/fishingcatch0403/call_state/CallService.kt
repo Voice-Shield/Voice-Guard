@@ -33,19 +33,17 @@ class CallService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d("[APP] CallService", "CallService 생성")
         createNotificationChannel() // 알림 채널 생성
         startForegroundService() // 포그라운드 서비스 시작
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        startClovaStt(this)
-        Log.d("[APP] CallService", "CallService 종료")
+        startSTT(this)
     }
 
     // Clova STT 서비스 시작 함수
-    private fun startClovaStt(context: Context) {
+    private fun startSTT(context: Context) {
         val intent = Intent(context, STTService::class.java)
         context.startService(intent)
     }
@@ -59,8 +57,8 @@ class CallService : Service() {
         )
 
         val notification = Notification.Builder(this, "CallServiceChannel")
-            .setContentTitle("서비스 제공중")
-            .setContentText("보이스 피싱 방지 서비스 제공 중 입니다")
+            .setContentTitle("보이스 피싱 방지")
+            .setContentText("서비스 제공 중 입니다")
             .setSmallIcon(R.drawable.shield)
             .setContentIntent(pendingIntent)
             .build()

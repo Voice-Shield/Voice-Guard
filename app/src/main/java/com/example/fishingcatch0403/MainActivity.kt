@@ -1,10 +1,9 @@
 package com.example.fishingcatch0403
 
-import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -13,11 +12,8 @@ import androidx.navigation.ui.NavigationUI
 import com.example.fishingcatch0403.databinding.ActivityMainBinding
 import com.example.fishingcatch0403.dialer.CallTrackingManager
 import com.example.fishingcatch0403.dialer.DialerManager
-import com.example.fishingcatch0403.rest_api.ApiController
-import com.example.fishingcatch0403.rest_api.SttResultCallback
-import com.example.fishingcatch0403.stt.notificationManager
+import com.example.fishingcatch0403.stt.STTService
 import com.example.fishingcatch0403.system_manager.BatteryOptimizationHelper
-import com.example.fishingcatch0403.system_manager.FileUtil
 import com.example.fishingcatch0403.system_manager.PermissionManager
 
 class MainActivity : AppCompatActivity() {
@@ -29,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var permissionManager: PermissionManager   // 권한 매니저 객체
     private lateinit var batteryOptimizationHelper: BatteryOptimizationHelper   // 절전 모드 방지 도우미 객체
 
-    private lateinit var apiController: ApiController   // STT 테스트를 위한 객체 (삭제 예정)
+    private lateinit var sttService: STTService // STT 테스트 코드 (삭제 예정)
 
     // 액티비티가 생성될 때 호출되는 메소드.
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,19 +40,14 @@ class MainActivity : AppCompatActivity() {
                 // 뷰 바인딩을 사용하여 레이아웃을 설정합니다.
             }
 
-        //  STT 테스트용 코드(삭제 예정)
-        apiController = ApiController()
-        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        apiController.initProgressBarManager(this)
-        FileUtil(contentResolver).getLatestRecordingFile()?.run {
-            ApiController().getSTTResult(this@MainActivity, this, object : SttResultCallback {
-                override fun onSuccess(result: String) {
-                    Toast.makeText(this@MainActivity, result, Toast.LENGTH_LONG).show()
-                }
-                override fun onError(errorMessage: String) {
-                    Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_SHORT).show()
-                }
-            })
+        //  STT 테스트 코드(삭제 예정)
+        sttService = STTService()
+        startService(Intent(this, STTService::class.java))
+
+        // 부팅 시 실행된 경우에만 백그라운드로 이동
+        val fromBoot = intent?.getBooleanExtra("fromBoot", false) ?: false
+        if (fromBoot) {
+            moveToBackground()
         }
 
         // 객체 초기화
@@ -72,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         } else initScreen()
     }
 
+    // 앱이 화면에 표시될 때 호출
     private fun initScreen() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -100,8 +92,6 @@ class MainActivity : AppCompatActivity() {
         if (batteryOptimizationHelper.isFirstRun()) {
             batteryOptimizationHelper.showBatteryOptimizationDialog()
         }
-
-
     }
 
     // 권한 요청 결과를 PermissionManager로 전달
@@ -120,5 +110,12 @@ class MainActivity : AppCompatActivity() {
             permissions,
             grantResults
         )   // PermissionManager의 메소드 호출
+    }
+
+    // 부팅 후 자동으로 백그라운드 서비스 제공
+    private fun moveToBackground() {
+        Handler(Looper.getMainLooper()).postDelayed({
+            moveTaskToBack(true)  // 액티비티를 백그라운드로 이동
+        }, 500)  // 0.5초 딜레이 후 백그라운드로 이동
     }
 }
