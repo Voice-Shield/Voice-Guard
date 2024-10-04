@@ -12,7 +12,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <!--    PlayStore 제한 권한     -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!--    PlayStore 제한 권한(추후 수정 필요)     -->
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.settings.MANAGE_ALL_FILES_ACCESS_PERMISSION" />
     <uses-permission
@@ -57,7 +58,7 @@
             android:theme="@style/SplashTheme" />
 
         <receiver
-            android:name="com.example.fishingcatch0403.call_state.CallStateReceiver"
+            android:name=".call_state.CallStateReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -68,6 +69,23 @@
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".auto_start.BootReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".auto_start.BootService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
 
         <service
             android:name=".call_state.CallService"
