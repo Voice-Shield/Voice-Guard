@@ -41,14 +41,8 @@ class MainActivity : AppCompatActivity() {
             }
 
         //  STT 테스트 코드(삭제 예정)
-        sttService = STTService()
-        startService(Intent(this, STTService::class.java))
-
-        // 부팅 시 실행된 경우에만 백그라운드로 이동
-        val fromBoot = intent?.getBooleanExtra("fromBoot", false) ?: false
-        if (fromBoot) {
-            moveToBackground()
-        }
+//        sttService = STTService()
+//        startService(Intent(this, STTService::class.java))
 
         // 객체 초기화
         dialerManager = DialerManager(this)
