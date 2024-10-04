@@ -106,12 +106,10 @@ class ApiController() {
                             }
                         }
                         isSTTResultReceived = true
-                        progressBarManager.updateProgressBar(100)
                         callback.onSuccess(res) // STT 내용 콜백
                     }
                 } else {
                     val errorBody = res.errorBody()?.string() ?: "Unknown error"
-                    progressBarManager.updateProgressBar(0)
                     callback.onError(errorBody)
                 }
             }

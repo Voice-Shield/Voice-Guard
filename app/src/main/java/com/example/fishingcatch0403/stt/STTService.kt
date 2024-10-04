@@ -52,24 +52,23 @@ class STTService : Service() {
         Log.d("[APP] STTService", "녹음 파일 분석 시작")
         // FileUtil로 최신 녹음 파일을 가져옴
         FileUtil(contentResolver).getLatestRecordingFile()?.run {
-            progressBarManager.startProgressUpdate(5000) // ProgressBar 시작
+//            progressBarManager.updateProgressBar(0,5000) --> 현재 progressBar 실행중 정지 오류 &  결과 알림 미출력 발생
             // STT API를 호출하여 음성을 텍스트로 변환
             apiController.getSTTResult(this, object : SttResultCallback {
                 override fun onSuccess(result: String) {
                     Log.d("[APP] STTService", "STT 결과: $result")
-                    notificationManager.cancelAll()
                     showResultNotification(result)
                 }
 
                 override fun onError(errorMessage: String) {
                     Log.e("[APP] STTService", "STT 오류: $errorMessage")
-                    notificationManager.cancelAll()
                     showResultNotification("STT 오류: $errorMessage")
                 }
             })
         } ?: run {
             // 파일이 없을 경우 로그 출력
             Log.e("[APP] STTService", "녹음 파일을 찾을 수 없습니다.")
+            notificationManager.cancelAll()
             showResultNotification("녹음 파일을 찾을 수 없습니다.")
         }
     }
@@ -118,7 +117,4 @@ class STTService : Service() {
         return null // 바인딩 하지 않기 때문에 null 반환
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
 }

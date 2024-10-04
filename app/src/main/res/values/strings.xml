@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">돈콜미\n(Don\'t Call Me)</string>
+    <string name="app_name">돈콜미</string>
     <string name="placeholder_1">녹음내역 열람</string>
     <string name="placeholder_2">총 15개</string>
     <string name="placeholder_3">홍길동\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t5개</string>
