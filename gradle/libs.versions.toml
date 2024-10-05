@@ -3,22 +3,22 @@ agp = "8.4.2"
 gax = "2.22.0"
 googleAuthLibraryOauth2Http = "1.14.0"
 googleCloudSpeech = "4.2.0"
-grpcStub = "1.51.0"
+grpcStub = "1.57.0"
 kotlin = "1.9.0"
-coreKtx = "1.10.1"
+coreKtx = "1.13.1"
 junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.5.1"
-appcompat = "1.6.1"
-kotlinxCoroutinesAndroid = "1.6.4"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+appcompat = "1.7.0"
+kotlinxCoroutinesAndroid = "1.7.3"
 librariesBom = "26.2.0"
-lifeCycleVer = "2.8.4"
-material = "1.11.0"
-activity = "1.8.0"
+lifeCycleVer = "2.8.6"
+material = "1.12.0"
+activity = "1.9.2"
 constraintlayout = "2.1.4"
 mobileFfmpegFull = "4.4.LTS"
-navVer = "2.7.7"
-okhttp = "4.9.0"
+navVer = "2.8.2"
+okhttp = "4.9.3"
 okhttpVersion = "4.9.3"
 retrofit = "2.11.0"
 
@@ -28,7 +28,7 @@ androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-view
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navVer" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navVer" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
-converter-scalar = {module = "com.squareup.retrofit2:converter-scalars",version.ref = "retrofit"}
+converter-scalar = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "retrofit" }
 gax = { module = "com.google.api:gax", version.ref = "gax" }
 google-auth-library-oauth2-http = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "googleAuthLibraryOauth2Http" }
 google-cloud-speech = { module = "com.google.cloud:google-cloud-speech", version.ref = "googleCloudSpeech" }
@@ -45,9 +45,11 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 mobile-ffmpeg-full = { module = "com.arthenica:mobile-ffmpeg-full", version.ref = "mobileFfmpegFull" }
+#noinspection SimilarGradleDependency
 okhttp-v490 = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+#noinspection SimilarGradleDependency
 okhttp3-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttpVersion" }
-retrofit = {module = "com.squareup.retrofit2:retrofit", version.ref="retrofit"}
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

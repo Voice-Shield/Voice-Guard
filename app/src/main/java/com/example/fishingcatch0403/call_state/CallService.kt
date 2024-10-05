@@ -45,6 +45,7 @@ class CallService : Service() {
     // Clova STT 서비스 시작 함수
     private fun startSTT(context: Context) {
         val intent = Intent(context, STTService::class.java)
+        intent.putExtra("phoneNumber", phoneNumber)
         context.startService(intent)
     }
 
@@ -59,7 +60,7 @@ class CallService : Service() {
         val notification = Notification.Builder(this, "CallServiceChannel")
             .setContentTitle("보이스 피싱 방지")
             .setContentText("서비스 제공 중 입니다")
-            .setSmallIcon(R.drawable.shield)
+            .setSmallIcon(R.drawable.protection)
             .setContentIntent(pendingIntent)
             .build()
 

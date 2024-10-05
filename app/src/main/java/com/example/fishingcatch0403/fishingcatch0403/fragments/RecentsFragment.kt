@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,9 +12,7 @@ import android.widget.ListView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.example.fishingcatch0403.BuildConfig
 import com.example.fishingcatch0403.R
-import com.example.fishingcatch0403.analyzetxt.AnalyzeTxT
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
@@ -25,7 +22,6 @@ class RecentsFragment : Fragment() {
 
     private var listViewAdapter: ArrayAdapter<String>? = null   // ListView에 사용할 Adapter
     private val fileList = ArrayList<String>()  // 파일 목록을 저장할 ArrayList
-    private lateinit var analyzeTxT: AnalyzeTxT // ChatGpt 객체
 
     override fun onCreateView(
         inflater: LayoutInflater,   // LayoutInflater: XML 레이아웃을 코드로 변환하는 역할
@@ -43,9 +39,6 @@ class RecentsFragment : Fragment() {
             ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, fileList)
         listView.adapter = listViewAdapter
 
-        // ChatGpt 객체 생성
-//        analyzeTxT = AnalyzeTxT(requireContext())
-
         // ListView의 아이템을 클릭했을 때 이벤트 처리
         listView.setOnItemClickListener { parent, view, position, id ->
             // 클릭한 아이템의 파일명을 가져옴
@@ -54,7 +47,6 @@ class RecentsFragment : Fragment() {
             val fileContents = readFileContents(fileName)
             Toast.makeText(requireContext(), "$fileName 선택됨", Toast.LENGTH_SHORT).show()
             Toast.makeText(requireContext(), fileContents, Toast.LENGTH_LONG).show()
-            analyze(fileList[position])
         }
 
         // 저장소 읽기 권한이 있는지 확인
@@ -116,45 +108,8 @@ class RecentsFragment : Fragment() {
         return stringBuilder.toString()
     }
 
-    private fun analyze(fileName: String) {
-        val apiKey = BuildConfig.API_KEY // OpenAI API 키
-
-        val textContent = analyzeTxT.readTextFile(fileName) // 텍스트 파일을 읽어옵니다.
-        Log.d("Phishing", "텍스트 파일 내용: $textContent")    // 텍스트 파일 내용을 로그로 출력합니다.
-
-        analyzeTxT.sendTextToChatGPT(
-            apiKey,
-            textContent
-        ) { response, error -> // ChatGPT API로 텍스트를 전송합니다.
-            if (error != null) {
-                Toast.makeText(requireContext(), "ChatGPT 요청 중 오류가 발생했습니다.", Toast.LENGTH_LONG)
-                    .show()
-                Log.e("Phishing","ChatGPT API 요청 실패", error)
-                return@sendTextToChatGPT
-            }
-            Log.d("Phishing", "ChatGPT 응답: $response")
-            if (response != null) { // ChatGPT 응답을 받은 경우
-                analyzeTxT.analyzeResponse(response)   // ChatGPT 응답을 분석합니다.
-                { isPhishing, analysis -> // 보이스피싱 여부를 판단합니다.
-                    if (isPhishing) {
-                        Toast.makeText(requireContext(), "보이스피싱 가능성이 있습니다.", Toast.LENGTH_LONG)
-                            .show()
-                        Log.d("Phishing", "보이스피싱 의심 통화: $analysis")
-                    } else {
-                        Toast.makeText(requireContext(), "보이스피싱 가능성이 낮습니다.", Toast.LENGTH_LONG)
-                            .show()
-                        Log.d("Phishing", "보이스피싱 아닌 통화")
-                    }
-                }
-            } else {    // ChatGPT 응답을 받지 못한 경우
-                Toast.makeText(requireContext(), "ChatGPT 로부터 응답을 받지 못했습니다.", Toast.LENGTH_LONG)
-                    .show()
-                Log.d("Phishing", "ChatGPT 로부터 응답을 받지 못함")
-            }
-        }
-    }
-
     // 권한 요청 결과 처리
+    @Deprecated("Deprecated in Java")
     override fun onRequestPermissionsResult(    // 권한 요청 결과 처리
         requestCode: Int,   // 요청 코드
         permissions: Array<out String>, // 요청한 권한 목록

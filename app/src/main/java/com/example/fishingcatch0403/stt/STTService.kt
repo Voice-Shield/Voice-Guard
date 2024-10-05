@@ -9,15 +9,16 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.fishingcatch0403.R
+import com.example.fishingcatch0403.analyzetxt.AnalyzeTxT
 import com.example.fishingcatch0403.rest_api.ApiController
 import com.example.fishingcatch0403.rest_api.SttResultCallback
 import com.example.fishingcatch0403.system_manager.FileUtil
 import com.example.fishingcatch0403.system_manager.ProgressBarManager
 
-
 lateinit var notificationManager: NotificationManager
 const val notificationId = 1
 const val CHANNEL_ID = "STTServiceChannel"
+private var phoneNumber: String? = null
 
 class STTService : Service() {
 
@@ -43,12 +44,16 @@ class STTService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        analyzeRecording()
+        intent?.let {
+            phoneNumber = it.getStringExtra("phoneNumber")
+            Log.d("[APP] STTService", "STTService 시작: $phoneNumber")
+            analyzeRecording(phoneNumber)
+        }
         return START_NOT_STICKY // 서비스는 강제로 종료된 후 자동으로 재시작되지 않음
     }
 
     // 녹음 파일 분석
-    private fun analyzeRecording() {
+    private fun analyzeRecording(phoneNumber: String?) {
         Log.d("[APP] STTService", "녹음 파일 분석 시작")
         // FileUtil로 최신 녹음 파일을 가져옴
         FileUtil(contentResolver).getLatestRecordingFile()?.run {
@@ -58,6 +63,7 @@ class STTService : Service() {
                 override fun onSuccess(result: String) {
                     Log.d("[APP] STTService", "STT 결과: $result")
                     showResultNotification(result)
+                    analyzeText(result, phoneNumber)
                 }
 
                 override fun onError(errorMessage: String) {
@@ -71,6 +77,14 @@ class STTService : Service() {
             notificationManager.cancelAll()
             showResultNotification("녹음 파일을 찾을 수 없습니다.")
         }
+    }
+
+    // STT로 변환한 텍스트를 AnalyzeTxT 서비스에 전달
+    private fun analyzeText(text: String, phoneNumber: String?) {
+        val intent = Intent(this, AnalyzeTxT::class.java)
+        intent.putExtra("text", text)
+        intent.putExtra("phoneNumber", phoneNumber)
+        startService(intent)
     }
 
     // Foreground Service 시작 및 기본 알림 생성
@@ -88,7 +102,7 @@ class STTService : Service() {
     // 음성 인식 결과에 따른 알림 업데이트
     private fun showResultNotification(result: String) {
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("음성 인식 결과")
+            .setContentTitle("통화 내용")
             .setContentText(result) // 음성 인식 결과를 알림으로 설정
             .setStyle(NotificationCompat.BigTextStyle().bigText(result)) // 긴 텍스트 알림
             .setSmallIcon(R.drawable.connection)

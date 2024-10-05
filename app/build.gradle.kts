@@ -25,6 +25,8 @@ android {
     val apiKey: String = properties.getProperty("api_key")
     val secretKey: String = properties.getProperty("secret_key")
     val invokeUrl: String = properties.getProperty("invoke_url")
+    val gptKey: String = properties.getProperty("gpt_key")
+    val baseUrl: String = properties.getProperty("base_url")
 
     buildFeatures {
         viewBinding = true
@@ -49,6 +51,8 @@ android {
         buildConfigField("String", "API_KEY", apiKey)
         buildConfigField("String", "SECRET_KEY", secretKey)
         buildConfigField("String", "INVOKE_URL", invokeUrl)
+        buildConfigField("String", "GPT_KEY", gptKey)
+        buildConfigField("String", "BASE_URL", baseUrl)
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -97,7 +101,7 @@ android {
         implementation(libs.gax)
         implementation(libs.libraries.bom)
 
-        // ClovaSpeech
+        // Retrofit
         implementation(libs.retrofit)
         implementation(libs.converter.gson)
         implementation(libs.converter.scalar)
