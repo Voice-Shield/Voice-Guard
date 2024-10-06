@@ -14,6 +14,7 @@ class AnalyzeController {
 
     var analyzeResult: String? = null
 
+    // 분석 결과를 전달하는 콜백 인터페이스
     interface AnalysisCallback {
         fun onAnalysisComplete(result: String)
     }

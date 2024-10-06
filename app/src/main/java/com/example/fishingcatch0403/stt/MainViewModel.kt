@@ -71,7 +71,7 @@ class MainViewModel : ViewModel() {
         _recordState.value = State.Loading
         viewModelScope.launch {
             runCatching {
-                (Environment.getExternalStorageDirectory().absolutePath + "Recordings/Call").let { ringtonesFolderPath ->
+                (Environment.getExternalStorageDirectory().absolutePath + "/Recordings/Call").let { ringtonesFolderPath ->
                     val m4aFiles =
                         File(ringtonesFolderPath).listFiles().filter { it.extension == "m4a" }
                     if (m4aFiles.isNullOrEmpty()) throw Exception("녹음 파일이 없습니다.")

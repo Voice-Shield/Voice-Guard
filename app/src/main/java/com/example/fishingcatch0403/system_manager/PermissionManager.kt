@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
@@ -16,15 +17,20 @@ class PermissionManager(val context: Context) {
 
     // 필요한 권한들을 문자열로 선언합니다.
     private val statePermission = android.Manifest.permission.READ_PHONE_STATE
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private val audioPermission = android.Manifest.permission.READ_MEDIA_AUDIO
     private val contactPermission = android.Manifest.permission.READ_CONTACTS
     private val storagePermission = android.Manifest.permission.WRITE_EXTERNAL_STORAGE
     private val readPermission = android.Manifest.permission.READ_EXTERNAL_STORAGE
     private val readCallLogPermission = android.Manifest.permission.READ_CALL_LOG
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private val notificationPermission = android.Manifest.permission.POST_NOTIFICATIONS
     private val overlayPermission = Settings.ACTION_MANAGE_OVERLAY_PERMISSION // 오버레이 권한을 위한 액션
 
     // 권한을 확인하고 요청하는 메소드
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun checkPermissions() {
         // context를 Activity로 캐스팅
         val activity = context as? Activity ?: return
@@ -55,7 +61,7 @@ class PermissionManager(val context: Context) {
         // 요청할 권한 목록을 저장하는 리스트
         val permissionsToRequest = mutableListOf<String>()
 
-        // Android 33 버전 이상일 때의 권한 처리
+        // Android 13 이상일 때의 권한 처리
         when {
             Build.VERSION.SDK_INT >= 33 -> {
                 if (!isAudioOK || !isStorageOK || !isStateOK || !isContactOK || !isCallLogOK || !isNotificationOK || !isOverlayOK) {
@@ -68,7 +74,7 @@ class PermissionManager(val context: Context) {
                     if (!isOverlayOK) {
                         // 오버레이 권한 요청을 위한 인텐트 시작
                         val intent = Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            overlayPermission,
                             Uri.parse("package:${activity.packageName}")
                         )
                         activity.startActivityForResult(intent, 1001)
@@ -84,7 +90,7 @@ class PermissionManager(val context: Context) {
                 }
             }
 
-            // Android 30 이상일 때의 권한 처리
+            // Android 11 이상일 때의 권한 처리
             Build.VERSION.SDK_INT >= 30 -> {
                 if (!isStorageOK || !isStateOK || !isContactOK || !isReadOK || !isOverlayOK) {
                     if (!Environment.isExternalStorageManager()) {
@@ -99,7 +105,7 @@ class PermissionManager(val context: Context) {
                         if (!isOverlayOK) {
                             // 오버레이 권한 요청을 위한 인텐트 시작
                             val intent = Intent(
-                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                overlayPermission,
                                 Uri.parse("package:${activity.packageName}")
                             )
                             activity.startActivityForResult(intent, 1001)
@@ -127,7 +133,7 @@ class PermissionManager(val context: Context) {
                     if (!isOverlayOK) {
                         // 오버레이 권한 요청을 위한 인텐트 시작
                         val intent = Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            overlayPermission,
                             Uri.parse("package:${activity.packageName}")
                         )
                         activity.startActivityForResult(intent, 1001)
