@@ -64,27 +64,27 @@ class AnalyzeTxT : Service() {
 
         // 커스텀 레이아웃 설정
         val remoteViews = RemoteViews(packageName, R.layout.notification_layout).apply {
-            setTextViewText(R.id.title, "보이스 피싱 분석 결과")
-            setTextViewText(R.id.message, "$currentDateTime\n$phoneNumber\n$result")
+            // 결과에 따라 알림 색상 및 아이콘 설정
+            setTextViewText(R.id.title, "보이스 피싱 분석 결과") // 제목은 항상 동일
+            setTextViewText(R.id.message, "$currentDateTime\n$phoneNumber\n$result") // 메시지 설정
 
-            // 알림 내용에 따라 배경 색상 및 아이콘 설정
             when {
                 result.contains("의심됩니다") -> {
-                    setInt(R.id.notification_layout, "setBackgroundColor", Color.RED) // 빨간색 배경
-                    setTextColor(R.id.message, Color.BLACK) // 검은색 글자
-                    setImageViewResource(R.id.icon, R.drawable.alert) // 경고 아이콘
+                    setInt(R.id.notification_layout, "setBackgroundColor", Color.RED)
+                    setTextColor(R.id.message, Color.BLACK)
+                    setImageViewResource(R.id.icon, R.drawable.alert)
                 }
 
                 result.contains("아닙니다") -> {
-                    setInt(R.id.notification_layout, "setBackgroundColor", Color.GREEN) // 녹색 배경
+                    setInt(R.id.notification_layout, "setBackgroundColor", Color.GREEN)
                     setTextColor(R.id.message, Color.WHITE) // 흰색 글자
                     setImageViewResource(R.id.icon, R.drawable.shield) // 안전 아이콘
                 }
 
                 else -> {
-                    setInt(R.id.notification_layout, "setBackgroundColor", Color.YELLOW) // 노란색 배경
-                    setTextColor(R.id.message, Color.WHITE) // 흰색 글자
-                    setImageViewResource(R.id.icon, R.drawable.logo) // 기본 아이콘
+                    setInt(R.id.notification_layout, "setBackgroundColor", Color.YELLOW)
+                    setTextColor(R.id.message, Color.WHITE)
+                    setImageViewResource(R.id.icon, R.drawable.logo)
                 }
             }
         }
@@ -95,6 +95,7 @@ class AnalyzeTxT : Service() {
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setContent(remoteViews)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setOnlyAlertOnce(true) // 알림 갱신 시 소리 알림 방지
 
         val notification = notificationBuilder.build()
         notificationManager.notify(notificationId + 1, notification)

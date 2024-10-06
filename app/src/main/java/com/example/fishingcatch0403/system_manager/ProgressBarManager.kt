@@ -25,7 +25,6 @@ class ProgressBarManager(
 
     // ProgressBar 업데이트 함수
     fun updateProgressBar(progress: Int, expectedTime: Long) {
-        // 알림에서 ProgressBar와 텍스트 업데이트
         val customView =
             RemoteViews(context.packageName, R.layout.notification_progress_layout).apply {
                 setTextViewText(R.id.progressText, "진행률: $progress%")
@@ -33,15 +32,17 @@ class ProgressBarManager(
             }
 
         val notification = NotificationCompat.Builder(context, channelId)
-            .setContent(customView) // 커스텀 뷰를 알림으로 설정
-            .setSmallIcon(R.drawable.diagram) // 아이콘 설정
-            .setPriority(NotificationCompat.PRIORITY_LOW)   // 알림 우선순위 설정
-            .setOnlyAlertOnce(true) // 알림 갱신 시 소리 알림 방지
-            .setOngoing(true) // 진행 중 알림 설정
+            .setContent(customView)
+            .setSmallIcon(R.drawable.diagram)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOnlyAlertOnce(true)
+            .setOngoing(true)
             .build()
+
         progressMain = progress
         startProgressUpdate(expectedTime)
-        // 알림을 표시
+
+        // 알림 표시
         notificationManager.notify(notificationId, notification)
     }
 
@@ -59,9 +60,9 @@ class ProgressBarManager(
 
                     // STT 결과가 수신된 경우
                     if (isSTTResultReceived) {
-                        Log.d("[APP] ProgressBarManager", "STT 결과가 수신됨 - ProgressBar 100%로 설정")
+                        Log.d("[APP] ProgressBarManager", "STT 결과 수신됨 - ProgressBar 100% 설정")
                         progressMain = 100 // 진행률을 100으로 설정
-                        updateProgressBar(progressMain, 0)
+                        updateProgressBar(progressMain, 0) // 진행률 업데이트
                         break
                     }
 
@@ -71,7 +72,8 @@ class ProgressBarManager(
 
                     Log.d("[APP] ProgressBarManager", "현재 진행률: $progressMain")
 
-                    updateProgressBar(progressMain, 0) // 진행률 업데이트
+                    // 현재 진행률 알림 업데이트
+                    updateProgressBar(progressMain, 0)
                 }
             }.onFailure { e ->
                 Log.e("[APP] ProgressBarManager", "오류 발생: ${e.message}")

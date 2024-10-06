@@ -13,11 +13,6 @@ buildscript {
     }
 }
 
-dependencies {
-    implementation(libs.okhttp.v490)
-    implementation(libs.mobile.ffmpeg.full)
-}
-
 android {
 
     val properties = Properties()
@@ -82,6 +77,9 @@ android {
     }
 
     dependencies {
+        implementation(libs.okhttp.v490)
+        implementation(libs.mobile.ffmpeg.full)
+
         implementation(libs.androidx.navigation.fragment.ktx)
         implementation(libs.androidx.navigation.ui.ktx)
         implementation(libs.androidx.core.ktx)
