@@ -29,4 +29,7 @@
     <string name="CheckBtn">확인</string>
     <string name="ServiceMessage">통화 진행 시 통화 녹음을 활성화 해주세요</string>
     <string name="ActiveSituation">진행 상황: 0%</string>
+    <string name="fileTitle">파일 제목</string>
+    <string name="fileContent">파일 내용</string>
+    <string name="exit">X</string>
 </resources>

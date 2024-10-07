@@ -163,6 +163,7 @@ class PermissionManager(val context: Context) {
         if (requestCode == 1000) {
             var allPermissionsGranted = true
 
+            // 요청한 권한에 대해서만 처리
             for (i in permissions.indices) {
                 if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                     allPermissionsGranted = false
