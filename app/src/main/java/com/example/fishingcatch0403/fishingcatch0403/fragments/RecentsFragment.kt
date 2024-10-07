@@ -1,14 +1,25 @@
 package com.example.fishingcatch0403.fishingcatch0403.fragments
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.PixelFormat
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.Settings
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -45,24 +56,45 @@ class RecentsFragment : Fragment() {
             val fileName = fileList[position]
             // 여기서 파일을 읽거나 다른 작업을 수행할 수 있습니다.
             val fileContents = readFileContents(fileName)
-            Toast.makeText(requireContext(), "$fileName 선택됨", Toast.LENGTH_SHORT).show()
-            Toast.makeText(requireContext(), fileContents, Toast.LENGTH_LONG).show()
+            showText(fileName, fileContents, requireContext())  // 파일 내용을 플로팅 뷰로 표시
         }
 
-        // 저장소 읽기 권한이 있는지 확인
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 100)
-        } else {
-            loadTextFiles()
-        }
+        checkPermissions() // 권한 확인 메소드 호출
+
         return view
     }
 
-    // 저장소 읽기 권한 요청 결과 처리
+    // 권한 확인 및 요청 메소드
+    private fun checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                // MANAGE_EXTERNAL_STORAGE 권한 요청
+                Toast.makeText(
+                    requireContext(),
+                    "MANAGE_EXTERNAL_STORAGE 권한이 필요합니다.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                intent.addCategory("android.intent.category.DEFAULT")
+                intent.data = Uri.parse("package:${requireContext().packageName}")
+                startActivity(intent)
+            } else {
+                loadTextFiles() // 권한이 이미 허용된 경우 파일 목록 로드
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 100)
+            } else {
+                loadTextFiles() // 권한이 이미 허용된 경우 파일 목록 로드
+            }
+        }
+    }
+
+    // 저장소에서 텍스트 파일 목록을 불러오는 메소드
     private fun loadTextFiles() {
         // 다운로드 폴더 경로
         val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
@@ -95,7 +127,6 @@ class RecentsFragment : Fragment() {
             val bufferedReader = BufferedReader(InputStreamReader(inputStream))
             // 파일 내용을 한 줄씩 읽어서 StringBuilder에 추가
             var line: String?
-            // 파일 내용을 한 줄씩 읽어서 StringBuilder에 추가
             while (bufferedReader.readLine().also { line = it } != null) {
                 stringBuilder.append(line).append('\n')
             }
@@ -115,16 +146,45 @@ class RecentsFragment : Fragment() {
         permissions: Array<out String>, // 요청한 권한 목록
         grantResults: IntArray  // 권한 요청 결과
     ) {
-        super.onRequestPermissionsResult(
-            requestCode,
-            permissions,
-            grantResults
-        )    // 상위 클래스의 메소드 호출
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 100 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {  // 권한 요청 코드가 100이고 권한이 허용된 경우
             loadTextFiles() // 저장소 읽기 권한이 허용된 경우 파일 목록을 불러옵니다.
         } else {    // 권한이 거부된 경우
             Toast.makeText(requireContext(), "저장소 읽기 권한이 거부되었습니다.", Toast.LENGTH_SHORT)
                 .show()  // 토스트 메시지를 표시합니다.
+        }
+    }
+
+    @SuppressLint("InflateParams", "MissingInflatedId")
+    private fun showText(fileName: String, fileContents: String, context: Context) {
+        if (Settings.canDrawOverlays(context)) {
+            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+
+            // 레이아웃을 인플레이션하여 플로팅 뷰 생성
+            val layoutInflater = LayoutInflater.from(context)
+            val floatingAlertView = layoutInflater.inflate(R.layout.text_show_layout, null)
+
+            // 파일 이름과 내용을 TextView에 설정
+            floatingAlertView.findViewById<TextView>(R.id.alertTitle).text = fileName
+            floatingAlertView.findViewById<TextView>(R.id.alertMessage).text = fileContents
+
+            val layoutParams = WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                PixelFormat.TRANSLUCENT
+            )
+
+            layoutParams.gravity = Gravity.CENTER // 화면 중앙에 표시
+
+            // X 버튼 클릭 리스너
+            floatingAlertView.findViewById<Button>(R.id.closeButton).setOnClickListener {
+                windowManager.removeView(floatingAlertView) // 플로팅 뷰 제거
+            }
+
+            // WindowManager를 통해 플로팅 뷰 추가
+            windowManager.addView(floatingAlertView, layoutParams)
         }
     }
 }

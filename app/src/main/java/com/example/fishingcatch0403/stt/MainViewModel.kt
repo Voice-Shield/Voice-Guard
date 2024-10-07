@@ -107,7 +107,7 @@ class MainViewModel : ViewModel() {
         return (FFmpeg.execute(command) == 0).also {
             if (it.not()) {
                 val log = Config.getLastCommandOutput()
-                Log.e("FFmpeg", "커맨드 입력 실패: $log")
+                Log.e("[APP] FFmpeg", "커맨드 입력 실패: $log")
             }
         }
     }
@@ -193,7 +193,7 @@ class MainViewModel : ViewModel() {
                                 }
                             } catch (e: Exception) {
                                 throw e
-                                Log.e("Error On Transcription: ", e.message.toString())
+                                Log.e("[APP] Error On Transcription: ", e.message.toString())
                                 ""
                             }
                         }
@@ -231,7 +231,8 @@ class MainViewModel : ViewModel() {
         withContext(Dispatchers.IO) {
             kotlin.runCatching {
                 // 현재 시간과 날짜를 포함하는 파일 이름을 생성합니다.
-                val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+                val dateFormat =
+                    SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault()).format(Date())
                 val currentDateTime = dateFormat.format(Date())
                 // "transcription_YYYYMMDD_HHMMSS.txt" 형태의 파일 이름을 생성합니다.
                 val fileName = "transcription_$currentDateTime.txt"

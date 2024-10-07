@@ -1,12 +1,12 @@
 package com.example.fishingcatch0403.system_manager
 
+import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.PixelFormat
 import android.net.Uri
-import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
@@ -64,6 +64,7 @@ class AlertService : Service() {
     }
 
     // 보이스 피싱 방지 서비스 선택 알림을 플로팅으로 표시
+    @SuppressLint("InflateParams")
     private fun showPhishingAlert(context: Context) {
         if (Settings.canDrawOverlays(context)) {
             val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -75,10 +76,7 @@ class AlertService : Service() {
             val layoutParams = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                else
-                    WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT
             )
@@ -112,6 +110,7 @@ class AlertService : Service() {
     }
 
     // 통화 녹음 활성화 알림을 플로팅으로 표시
+    @SuppressLint("InflateParams")
     private fun showRecordingAlert(context: Context) {
         if (Settings.canDrawOverlays(context)) {
             val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -123,10 +122,7 @@ class AlertService : Service() {
             val layoutParams = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                else
-                    WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT
             )
