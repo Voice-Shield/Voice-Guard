@@ -26,7 +26,7 @@ class AnalyzeController {
             listOf(
                 Message(
                     "user",
-                    "$text \n 위 내용은 통화내용인데 보이스피싱으로 의심이 된다면 '네'를 의심이 안 된다면 '아니오'로 네 또는 아니오로만 대답해줘"
+                    "$text \n 위 내용은 통화내용인데 보이스피싱으로 의심이 된다면 '보이스 피싱이 의심됩니다' 를 의심이 안 된다면 '보이스 피싱이 아닙니다' 로 대답해주고 추가적으로 만약 보이스 피싱으로 의심된다면 어떤 단어가 몇건씩 적발되었는지 best3만 추려서 같이 깔끔하게 이 내용들만 보여줘"
                 )
             )
         )
@@ -49,12 +49,12 @@ class AnalyzeController {
                             if (getResponse != null) {
                                 Log.d("[APP] ChatGPT", "응답: $getResponse ")
 
-                                if (getResponse.contains("네")) {
+                                if (getResponse.contains("의심됩니다")) {
                                     Log.d("[APP] AI check", "보이스 피싱이 의심됩니다.")
-                                    analyzeResult = "보이스 피싱이 의심됩니다."
+                                    analyzeResult = getResponse
                                 } else {
                                     Log.d("[APP] AI check", "보이스 피싱이 아닙니다.")
-                                    analyzeResult = "보이스 피싱이 아닙니다."
+                                    analyzeResult = getResponse
                                 }
                                 // 분석 결과가 완료되면 콜백 호출
                                 callback.onAnalysisComplete(analyzeResult!!)

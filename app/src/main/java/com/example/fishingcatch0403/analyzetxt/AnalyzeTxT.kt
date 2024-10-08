@@ -11,9 +11,14 @@ import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.example.fishingcatch0403.R
+import com.example.fishingcatch0403.fishingcatch0403.fragments.phishing_log.NotificationDatabase
+import com.example.fishingcatch0403.fishingcatch0403.fragments.phishing_log.NotificationItem
 import com.example.fishingcatch0403.stt.CHANNEL_ID
 import com.example.fishingcatch0403.stt.notificationId
 import com.example.fishingcatch0403.stt.notificationManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -23,6 +28,8 @@ private var sttText: String? = null
 private var phoneNumber: String? = null
 
 class AnalyzeTxT : Service() {
+
+    private val notificationDao = NotificationDatabase.getDatabase(this).notificationDao()
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
@@ -99,6 +106,20 @@ class AnalyzeTxT : Service() {
 
         val notification = notificationBuilder.build()
         notificationManager.notify(notificationId + 1, notification)
+
+        // 알림 저장 (의심되거나 안전할 경우만)
+        if (result.contains("의심됩니다") || result.contains("아닙니다")) {
+            val resultType = if (result.contains("의심됩니다")) 1 else 2
+            val notificationItem = NotificationItem(
+                dateTime = currentDateTime,
+                phoneNumber = phoneNumber,
+                result = result,
+                resultType = resultType
+            )
+            CoroutineScope(Dispatchers.IO).launch {
+                notificationDao.insertNotification(notificationItem)
+            }
+        }
     }
 
     // 알림 채널 생성

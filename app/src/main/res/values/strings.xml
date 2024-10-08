@@ -1,27 +1,7 @@
 <resources>
 
     <string name="app_name">돈콜미</string>
-    <string name="placeholder_1">녹음내역 열람</string>
-    <string name="placeholder_2">총 15개</string>
-    <string name="placeholder_3">홍길동\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t5개</string>
-    <string name="placeholder_4">1. 이번 돈콜미 ui를 만들면서 어쩌구 저쩌구.........\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t...더보기</string>
-    <string name="placeholder_5">1. 이번 돈콜미 ui를 만들면서 어쩌구 저쩌구.........\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t...더보기</string>
-    <string name="placeholder_6">1. 이번 돈콜미 ui를 만들면서 어쩌구 저쩌구.........\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t...더보기</string>
-    <string name="placeholder_7">1. 이번 돈콜미 ui를 만들면서 어쩌구 저쩌구.........\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t...더보기</string>
-    <string name="placeholder_8">1. 이번 돈콜미 ui를 만들면서 어쩌구 저쩌구.........\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t...더보기</string>
-    <string name="placeholder_9">홍길순\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t10개</string>
-    <string name="calling">전화 연결중...</string>
-    <string name="placeholder_10">1. 이번 돈콜미 ui를 만들면서 어쩌구 저쩌구.........\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t...더보기</string>
-    <string name="placeholder_11">2. 이번 돈콜미 ui를 만들면서 어쩌구 저쩌구.........\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t...더보기</string>
-    <string name="placeholder_12">3. 이번 돈콜미 ui를 만들면서 어쩌구 저쩌구.........\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t...더보기</string>
-    <string name="placeholder_13">4. 이번 돈콜미 ui를 만들면서 어쩌구 저쩌구.........\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t...더보기</string>
-    <string name="placeholder_14">5. 이번 돈콜미 ui를 만들면서 어쩌구 저쩌구.........\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t...더보기</string>
     <string name="activity_login_signup_message">계정이 없으신가요? 회원가입</string>
-    <string name="ChooseTalker">화자 수를 선택해 주세요</string>
-    <string name="FiveSpeakers">5명</string>
-    <string name="FourSpeakers">4명</string>
-    <string name="ThreeSpeakers">3명</string>
-    <string name="TwoSpeakers">2명</string>
     <string name="SuggestService">보이스 피싱 방지 서비스를 제공받으시겠습니까?</string>
     <string name="NoBtn">아니오</string>
     <string name="ServiceTitle">보이스 피싱 방지</string>
@@ -54,4 +34,7 @@
     <string name="_0">0</string>
     <string name="sharp">#</string>
     <string name="todo">TODO</string>
+    <string name="title">Title</string>
+    <string name="message">Message</string>
+    <string name="delete">삭제</string>
 </resources>
