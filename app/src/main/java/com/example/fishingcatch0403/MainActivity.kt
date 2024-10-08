@@ -1,18 +1,17 @@
 package com.example.fishingcatch0403
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.example.fishingcatch0403.databinding.ActivityMainBinding
 import com.example.fishingcatch0403.dialer.CallTrackingManager
 import com.example.fishingcatch0403.dialer.DialerManager
-import com.example.fishingcatch0403.stt.STTService
 import com.example.fishingcatch0403.system_manager.BatteryOptimizationHelper
 import com.example.fishingcatch0403.system_manager.PermissionManager
 
@@ -25,9 +24,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var permissionManager: PermissionManager   // 권한 매니저 객체
     private lateinit var batteryOptimizationHelper: BatteryOptimizationHelper   // 절전 모드 방지 도우미 객체
 
-    private lateinit var sttService: STTService // STT 테스트 코드 (삭제 예정)
-
     // 액티비티가 생성될 때 호출되는 메소드.
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // 뷰 바인딩을 사용하여 레이아웃을 설정합니다.
@@ -39,10 +37,6 @@ class MainActivity : AppCompatActivity() {
                 initScreen()
                 // 뷰 바인딩을 사용하여 레이아웃을 설정합니다.
             }
-
-        //  STT 테스트 코드(삭제 예정)
-//        sttService = STTService()
-//        startService(Intent(this, STTService::class.java))
 
         // 객체 초기화
         dialerManager = DialerManager(this)
@@ -58,6 +52,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // 앱이 화면에 표시될 때 호출
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun initScreen() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -104,12 +99,5 @@ class MainActivity : AppCompatActivity() {
             permissions,
             grantResults
         )   // PermissionManager의 메소드 호출
-    }
-
-    // 부팅 후 자동으로 백그라운드 서비스 제공
-    private fun moveToBackground() {
-        Handler(Looper.getMainLooper()).postDelayed({
-            moveTaskToBack(true)  // 액티비티를 백그라운드로 이동
-        }, 500)  // 0.5초 딜레이 후 백그라운드로 이동
     }
 }

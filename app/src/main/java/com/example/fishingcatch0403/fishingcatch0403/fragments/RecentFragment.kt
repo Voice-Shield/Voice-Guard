@@ -29,7 +29,7 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
 
-class RecentsFragment : Fragment() {
+class RecentFragment : Fragment() {
 
     private var listViewAdapter: ArrayAdapter<String>? = null   // ListView에 사용할 Adapter
     private val fileList = ArrayList<String>()  // 파일 목록을 저장할 ArrayList

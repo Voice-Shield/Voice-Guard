@@ -5,13 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.fishingcatch0403.databinding.FragmentKeyBinding
-import com.example.fishingcatch0403.databinding.FragmentRecentsBinding
 import com.example.fishingcatch0403.databinding.FragmentSettingBinding
 
-class SettingsFragment : Fragment()  {
+class SettingsFragment : Fragment() {
 
-    private var mBinding : FragmentSettingBinding? = null
+    private var mBinding: FragmentSettingBinding? = null
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

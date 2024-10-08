@@ -17,6 +17,7 @@ class PermissionManager(val context: Context) {
 
     // 필요한 권한들을 문자열로 선언합니다.
     private val statePermission = android.Manifest.permission.READ_PHONE_STATE
+    private val callPermission = android.Manifest.permission.CALL_PHONE // 전화 걸기 권한 추가
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private val audioPermission = android.Manifest.permission.READ_MEDIA_AUDIO
@@ -36,21 +37,39 @@ class PermissionManager(val context: Context) {
         val activity = context as? Activity ?: return
 
         // 개별 권한 상태를 확인합니다.
-        val isStateOK = ContextCompat.checkSelfPermission(activity, statePermission) ==
-                PackageManager.PERMISSION_GRANTED
-        val isAudioOK = ContextCompat.checkSelfPermission(activity, audioPermission) ==
-                PackageManager.PERMISSION_GRANTED
-        val isContactOK = ContextCompat.checkSelfPermission(activity, contactPermission) ==
-                PackageManager.PERMISSION_GRANTED
-        val isStorageOK = ContextCompat.checkSelfPermission(activity, storagePermission) ==
-                PackageManager.PERMISSION_GRANTED
-        val isReadOK = ContextCompat.checkSelfPermission(activity, readPermission) ==
-                PackageManager.PERMISSION_GRANTED
-        val isCallLogOK = ContextCompat.checkSelfPermission(activity, readCallLogPermission) ==
-                PackageManager.PERMISSION_GRANTED
+        val isStateOK = ContextCompat.checkSelfPermission(
+            activity,
+            statePermission
+        ) == PackageManager.PERMISSION_GRANTED
+        val isCallOK = ContextCompat.checkSelfPermission(
+            activity,
+            callPermission
+        ) == PackageManager.PERMISSION_GRANTED // 전화 걸기 권한 확인
+        val isAudioOK = ContextCompat.checkSelfPermission(
+            activity,
+            audioPermission
+        ) == PackageManager.PERMISSION_GRANTED
+        val isContactOK = ContextCompat.checkSelfPermission(
+            activity,
+            contactPermission
+        ) == PackageManager.PERMISSION_GRANTED
+        val isStorageOK = ContextCompat.checkSelfPermission(
+            activity,
+            storagePermission
+        ) == PackageManager.PERMISSION_GRANTED
+        val isReadOK = ContextCompat.checkSelfPermission(
+            activity,
+            readPermission
+        ) == PackageManager.PERMISSION_GRANTED
+        val isCallLogOK = ContextCompat.checkSelfPermission(
+            activity,
+            readCallLogPermission
+        ) == PackageManager.PERMISSION_GRANTED
         val isNotificationOK = if (Build.VERSION.SDK_INT >= 33) {
-            ContextCompat.checkSelfPermission(activity, notificationPermission) ==
-                    PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(
+                activity,
+                notificationPermission
+            ) == PackageManager.PERMISSION_GRANTED
         } else {
             true
         }
@@ -64,19 +83,18 @@ class PermissionManager(val context: Context) {
         // Android 13 이상일 때의 권한 처리
         when {
             Build.VERSION.SDK_INT >= 33 -> {
-                if (!isAudioOK || !isStorageOK || !isStateOK || !isContactOK || !isCallLogOK || !isNotificationOK || !isOverlayOK) {
+                if (!isAudioOK || !isStorageOK || !isStateOK || !isContactOK || !isCallLogOK || !isCallOK || !isNotificationOK || !isOverlayOK) {
                     // 필요한 권한들을 리스트에 추가
                     if (!isAudioOK) permissionsToRequest.add(audioPermission)
                     if (!isStateOK) permissionsToRequest.add(statePermission)
                     if (!isContactOK) permissionsToRequest.add(contactPermission)
                     if (!isCallLogOK) permissionsToRequest.add(readCallLogPermission)
+                    if (!isCallOK) permissionsToRequest.add(callPermission) // 전화 걸기 권한 추가
                     if (!isNotificationOK) permissionsToRequest.add(notificationPermission)
                     if (!isOverlayOK) {
                         // 오버레이 권한 요청을 위한 인텐트 시작
-                        val intent = Intent(
-                            overlayPermission,
-                            Uri.parse("package:${activity.packageName}")
-                        )
+                        val intent =
+                            Intent(overlayPermission, Uri.parse("package:${activity.packageName}"))
                         activity.startActivityForResult(intent, 1001)
                     }
                     if (permissionsToRequest.isNotEmpty()) {
@@ -92,7 +110,7 @@ class PermissionManager(val context: Context) {
 
             // Android 11 이상일 때의 권한 처리
             Build.VERSION.SDK_INT >= 30 -> {
-                if (!isStorageOK || !isStateOK || !isContactOK || !isReadOK || !isOverlayOK) {
+                if (!isStorageOK || !isStateOK || !isContactOK || !isReadOK || !isCallOK || !isOverlayOK) {
                     if (!Environment.isExternalStorageManager()) {
                         // 모든 파일 접근 권한 요청
                         val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
@@ -102,6 +120,7 @@ class PermissionManager(val context: Context) {
                         if (!isStateOK) permissionsToRequest.add(statePermission)
                         if (!isContactOK) permissionsToRequest.add(contactPermission)
                         if (!isReadOK) permissionsToRequest.add(readPermission)
+                        if (!isCallOK) permissionsToRequest.add(callPermission) // 전화 걸기 권한 추가
                         if (!isOverlayOK) {
                             // 오버레이 권한 요청을 위한 인텐트 시작
                             val intent = Intent(
@@ -124,18 +143,17 @@ class PermissionManager(val context: Context) {
 
             // 그 외 버전에서의 권한 처리
             else -> {
-                if (!isStorageOK || !isReadOK || !isStateOK || !isContactOK || !isCallLogOK || !isOverlayOK) {
+                if (!isStorageOK || !isReadOK || !isStateOK || !isContactOK || !isCallLogOK || !isCallOK || !isOverlayOK) {
                     if (!isStorageOK) permissionsToRequest.add(storagePermission)
                     if (!isReadOK) permissionsToRequest.add(readPermission)
                     if (!isStateOK) permissionsToRequest.add(statePermission)
                     if (!isContactOK) permissionsToRequest.add(contactPermission)
                     if (!isCallLogOK) permissionsToRequest.add(readCallLogPermission)
+                    if (!isCallOK) permissionsToRequest.add(callPermission) // 전화 걸기 권한 추가
                     if (!isOverlayOK) {
                         // 오버레이 권한 요청을 위한 인텐트 시작
-                        val intent = Intent(
-                            overlayPermission,
-                            Uri.parse("package:${activity.packageName}")
-                        )
+                        val intent =
+                            Intent(overlayPermission, Uri.parse("package:${activity.packageName}"))
                         activity.startActivityForResult(intent, 1001)
                     }
                     if (permissionsToRequest.isNotEmpty()) {

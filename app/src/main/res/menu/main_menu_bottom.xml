@@ -3,26 +3,26 @@
 
     <item
         android:id="@+id/homeFragment"
-        android:title="홈"
-        android:icon="@drawable/home"/>
+        android:icon="@drawable/home"
+        android:title="@string/home" />
 
     <item
         android:id="@+id/recentsFragment"
-        android:title="최근기록"
-        android:icon="@drawable/img" />
+        android:icon="@drawable/img"
+        android:title="@string/recentDialog" />
 
     <item
         android:id="@+id/keyFragment"
-        android:title="키패드"
-        android:icon="@drawable/key" />
+        android:icon="@drawable/key"
+        android:title="@string/key" />
 
     <item
         android:id="@+id/friendsFragment"
-        android:title="연락처"
-        android:icon="@drawable/book"/>
+        android:icon="@drawable/book"
+        android:title="@string/dialer" />
 
     <item
         android:id="@+id/settingsFragment"
-        android:title="더보기"
-        android:icon="@drawable/set"/>
+        android:icon="@drawable/set"
+        android:title="@string/addMore" />
 </menu>

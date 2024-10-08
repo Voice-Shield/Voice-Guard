@@ -22,7 +22,7 @@
         tools:layout="@layout/fragment_key" />
     <fragment
         android:id="@+id/recentsFragment"
-        android:name="com.example.fishingcatch0403.fishingcatch0403.fragments.RecentsFragment"
+        android:name="com.example.fishingcatch0403.fishingcatch0403.fragments.RecentFragment"
         android:label="fragment_recents"
         tools:layout="@layout/fragment_recents" />
     <fragment
