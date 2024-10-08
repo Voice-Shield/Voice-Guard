@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/recentsFragment"
-    tools:context="com.example.fishingcatch0403.fishingcatch0403.fragments.RecentsFragment">
+    tools:context="com.example.fishingcatch0403.fishingcatch0403.fragments.RecentFragment">
 
     <ListView
         android:layout_width="match_parent"
