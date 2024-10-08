@@ -1,4 +1,4 @@
-package com.example.fishingcatch0403.fishingcatch0403.fragments.manager
+package com.example.fishingcatch0403.fishingcatch0403.fragments.contact
 
 import android.view.LayoutInflater
 import android.view.View

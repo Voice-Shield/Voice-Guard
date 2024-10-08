@@ -16,8 +16,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fishingcatch0403.databinding.FragmentFriendsBinding
-import com.example.fishingcatch0403.fishingcatch0403.fragments.manager.Contact
-import com.example.fishingcatch0403.fishingcatch0403.fragments.manager.ContactAdapter
+import com.example.fishingcatch0403.fishingcatch0403.fragments.contact.Contact
+import com.example.fishingcatch0403.fishingcatch0403.fragments.contact.ContactAdapter
 
 class FriendsFragment : Fragment() {
 
