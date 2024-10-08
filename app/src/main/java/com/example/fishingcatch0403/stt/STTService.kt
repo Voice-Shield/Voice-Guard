@@ -57,7 +57,7 @@ class STTService : Service() {
         Log.d("[APP] STTService", "녹음 파일 분석 시작")
         // FileUtil로 최신 녹음 파일을 가져옴
         FileUtil(contentResolver).getLatestRecordingFile()?.run {
-//            progressBarManager.updateProgressBar(0,5000) --> 현재 progressBar 실행중 정지 오류 발생
+            progressBarManager.updateProgressBar(0, 5000)  // --> 현재 progressBar 실행중 정지 오류 발생
             // STT API를 호출하여 음성을 텍스트로 변환
             apiController.getSTTResult(this, object : SttResultCallback {
                 override fun onSuccess(result: String) {

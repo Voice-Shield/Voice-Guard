@@ -35,7 +35,7 @@
     <string name="home">홈</string>
     <string name="recentDialog">최근기록</string>
     <string name="dialer">연락처</string>
-    <string name="addMore">더보기</string>
+    <string name="phishingLog">피싱 기록</string>
     <string name="key">전화</string>
     <string name="contacts">연락처</string>
     <string name="contactName">Name</string>

@@ -100,7 +100,8 @@ class FriendsFragment : Fragment() {
             }
         }
 
-        contactList = contacts // 전체 연락처 목록 저장
+        contacts.sortBy { it.name } // 연락처 이름으로 정렬
+        contactList = contacts  // 전체 연락처 목록 저장
         adapter = ContactAdapter(contacts) { contact ->
             showContactOptions(contact) // 클릭 시 옵션 보여주기
         }
