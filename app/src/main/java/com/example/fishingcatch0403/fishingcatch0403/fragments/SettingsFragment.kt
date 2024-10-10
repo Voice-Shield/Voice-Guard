@@ -36,9 +36,10 @@ class SettingsFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
 
         // 어댑터 초기화
-        notificationAdapter = NotificationAdapter(notificationList) { notification ->
+        notificationAdapter = NotificationAdapter(notificationList, { notification ->
             deleteNotification(notification)
-        }
+        }, notificationDao)
+
         recyclerView.adapter = notificationAdapter // 어댑터 설정
 
         loadNotifications() // 알림 리스트 로드

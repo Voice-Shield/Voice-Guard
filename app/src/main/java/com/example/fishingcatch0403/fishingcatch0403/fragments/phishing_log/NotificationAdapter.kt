@@ -15,11 +15,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-private lateinit var notificationDao: NotificationDao
-
 class NotificationAdapter(
     private var notifications: MutableList<NotificationItem>,
-    private val deleteCallback: (NotificationItem) -> Unit
+    private val deleteCallback: (NotificationItem) -> Unit,
+    private val notificationDao: NotificationDao
 ) : RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder>() {
 
     class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

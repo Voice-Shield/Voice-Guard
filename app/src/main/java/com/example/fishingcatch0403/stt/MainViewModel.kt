@@ -235,7 +235,7 @@ class MainViewModel : ViewModel() {
                     SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault()).format(Date())
                 val currentDateTime = dateFormat.format(Date())
                 // "transcription_YYYYMMDD_HHMMSS.txt" 형태의 파일 이름을 생성합니다.
-                val fileName = "transcription_$currentDateTime.txt"
+                val fileName = "통화 내용_$currentDateTime.txt"
 
                 // 파일 객체를 생성합니다. 파일은 외부 저장소의 Downloads 디렉토리에 저장됩니다.
                 val file = File(
