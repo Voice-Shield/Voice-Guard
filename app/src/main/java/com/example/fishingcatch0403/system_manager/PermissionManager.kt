@@ -44,7 +44,7 @@ class PermissionManager(val context: Context) {
         val isCallOK = ContextCompat.checkSelfPermission(
             activity,
             callPermission
-        ) == PackageManager.PERMISSION_GRANTED // 전화 걸기 권한 확인
+        ) == PackageManager.PERMISSION_GRANTED
         val isAudioOK = ContextCompat.checkSelfPermission(
             activity,
             audioPermission

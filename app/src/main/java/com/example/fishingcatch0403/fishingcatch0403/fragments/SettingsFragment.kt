@@ -22,6 +22,7 @@ class SettingsFragment : Fragment() {
 
     private lateinit var notificationDao: NotificationDao
     private lateinit var notificationAdapter: NotificationAdapter
+    private var notificationList: MutableList<NotificationItem> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,39 +36,31 @@ class SettingsFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
 
         // 어댑터 초기화
-        notificationAdapter = NotificationAdapter(emptyList()) { notification ->
+        notificationAdapter = NotificationAdapter(notificationList) { notification ->
             deleteNotification(notification)
         }
         recyclerView.adapter = notificationAdapter // 어댑터 설정
 
-        // 알림 데이터 로드
-        CoroutineScope(Dispatchers.IO).launch {
-            val notifications = notificationDao.getAllNotifications()
-
-            withContext(Dispatchers.Main) {
-                notificationAdapter = NotificationAdapter(notifications) { notification ->
-                    deleteNotification(notification)
-                }
-                recyclerView.adapter = notificationAdapter
-            }
-        }
+        loadNotifications() // 알림 리스트 로드
 
         return view
     }
 
-    // 알림 삭제 처리
     @SuppressLint("NotifyDataSetChanged")
+    private fun loadNotifications() {
+        CoroutineScope(Dispatchers.IO).launch {
+            notificationList.clear()
+            notificationList.addAll(notificationDao.getAllNotifications())
+            withContext(Dispatchers.Main) {
+                notificationAdapter.notifyDataSetChanged() // 데이터 변경 통지
+            }
+        }
+    }
+
+    // 알림 삭제 처리
     private fun deleteNotification(notification: NotificationItem) {
         CoroutineScope(Dispatchers.IO).launch {
             notificationDao.deleteNotification(notification)
-            val notifications = notificationDao.getAllNotifications()
-
-            withContext(Dispatchers.Main) {
-                notificationAdapter = NotificationAdapter(notifications) { notification ->
-                    deleteNotification(notification)
-                }
-                notificationAdapter.notifyDataSetChanged() // 데이터 갱신
-            }
         }
     }
 }
