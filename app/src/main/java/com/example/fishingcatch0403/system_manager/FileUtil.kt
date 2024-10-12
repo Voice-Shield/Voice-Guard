@@ -27,11 +27,11 @@ class FileUtil(private val contentResolver: ContentResolver) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // API 31 이상 (Scoped Storage 도입)
             values.put(
                 MediaStore.MediaColumns.RELATIVE_PATH,  // 저장 경로 설정
-                Environment.DIRECTORY_DOWNLOADS + STT_PATH // 다운로드 폴더 경로 설정
+                Environment.DIRECTORY_DOCUMENTS + STT_PATH // 다운로드 폴더 경로 설정
             )
         } else { // API 30 이하 (Scoped Storage 미도입)
             val directory =
-                File("${Environment.getExternalStorageDirectory()}/${Environment.DIRECTORY_DOWNLOADS}$STT_PATH")
+                File("${Environment.getExternalStorageDirectory()}/${Environment.DIRECTORY_DOCUMENTS}$STT_PATH")
             if (!directory.exists()) {
                 directory.mkdirs() // 디렉토리가 없으면 생성
             }

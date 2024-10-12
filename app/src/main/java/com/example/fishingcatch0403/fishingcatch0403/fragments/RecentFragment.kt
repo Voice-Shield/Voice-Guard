@@ -98,7 +98,7 @@ class RecentFragment : Fragment() {
     private fun loadTextFiles() {
         // 다운로드 폴더 경로
         val path =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/STT_Call")
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/STT_Call")
         // 다운로드 폴더에 있는 .txt 파일 목록을 가져옴
         val files = path.listFiles { _, name -> name.endsWith(".txt") }
         // 파일 목록 초기화
@@ -119,7 +119,7 @@ class RecentFragment : Fragment() {
         try {
             // 파일 경로 생성
             val file = File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/STT_Call"),
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/STT_Call"),
                 fileName
             )
             // 파일을 읽어오는 코드
