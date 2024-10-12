@@ -19,12 +19,11 @@ class ProgressBarManager(
     private val notificationId: Int,
     private val channelId: String
 ) {
-
-    private var progressMain: Int = 0    // 진행률 변수
-    private var job: Job? = null    // 코루틴 작업을 저장할 변수
+    private var progressMain: Int = 0 // 진행률 변수
+    private var job: Job? = null // 코루틴 작업을 저장할 변수
 
     // ProgressBar 업데이트 함수
-    fun updateProgressBar(progress: Int, expectedTime: Long) {
+    private fun updateProgressBar(progress: Int) {
         val customView =
             RemoteViews(context.packageName, R.layout.notification_progress_layout).apply {
                 setTextViewText(R.id.progressText, "진행률: $progress%")
@@ -39,22 +38,20 @@ class ProgressBarManager(
             .setOngoing(true)
             .build()
 
-        progressMain = progress
-        startProgressUpdate(expectedTime)
-
         // 알림 표시
         notificationManager.notify(notificationId, notification)
     }
 
     // ProgressBar 시작 함수
-    private fun startProgressUpdate(expectedTime: Long) {
+    fun startProgressUpdate(expectedTime: Long) {
         if (expectedTime <= 0) return
 
+        // 이전 작업이 남아있다면 취소
         job?.cancel()
         job = CoroutineScope(Dispatchers.Main).launch {
             val startTime = System.currentTimeMillis()
 
-            runCatching {
+            try {
                 while (progressMain < 100) {
                     delay(100) // 100ms 대기
 
@@ -62,7 +59,7 @@ class ProgressBarManager(
                     if (isSTTResultReceived) {
                         Log.d("[APP] ProgressBarManager", "STT 결과 수신됨 - ProgressBar 100% 설정")
                         progressMain = 100 // 진행률을 100으로 설정
-                        updateProgressBar(progressMain, 0) // 진행률 업데이트
+                        updateProgressBar(progressMain) // 진행률 업데이트
                         break
                     }
 
@@ -73,11 +70,11 @@ class ProgressBarManager(
                     Log.d("[APP] ProgressBarManager", "현재 진행률: $progressMain")
 
                     // 현재 진행률 알림 업데이트
-                    updateProgressBar(progressMain, 0)
+                    updateProgressBar(progressMain)
                 }
-            }.onFailure { e ->
+            } catch (e: Exception) {
                 Log.e("[APP] ProgressBarManager", "오류 발생: ${e.message}")
-            }.also {
+            } finally {
                 Log.d("[APP] ProgressBarManager", "코루틴 종료")
             }
         }

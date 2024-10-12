@@ -16,24 +16,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class NotificationAdapter(
-    private var notifications: MutableList<NotificationItem>,
-    private val deleteCallback: (NotificationItem) -> Unit,
-    private val notificationDao: NotificationDao
-) : RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder>() {
+    private var notifications: MutableList<NotificationItem>,   // 알림 목록
+    private val deleteCallback: (NotificationItem) -> Unit, // 삭제 콜백
+    private val notificationDao: NotificationDao    // DB 접근 객체
+) : RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder>() {    // 뷰홀더
 
     class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val title: TextView = itemView.findViewById(R.id.notification_title)
-        val message: TextView = itemView.findViewById(R.id.notification_message)
-        val icon: ImageView = itemView.findViewById(R.id.notification_icon)
-        val deleteButton: AppCompatImageButton = itemView.findViewById(R.id.delete_button)
+        val title: TextView = itemView.findViewById(R.id.notification_title)    // 제목
+        val message: TextView = itemView.findViewById(R.id.notification_message)    // 내용
+        val icon: ImageView = itemView.findViewById(R.id.notification_icon) // 아이콘
+        val deleteButton: AppCompatImageButton = itemView.findViewById(R.id.delete_button) // 삭제 버튼
     }
 
+    // 아이템 삭제
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationViewHolder {
         val view =
             LayoutInflater.from(parent.context).inflate(R.layout.item_notification, parent, false)
         return NotificationViewHolder(view)
     }
 
+    // 아이템 바인딩
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: NotificationViewHolder, position: Int) {
         val notification = notifications[position]
@@ -73,6 +75,6 @@ class NotificationAdapter(
         }
     }
 
-    override fun getItemCount(): Int = notifications.size
+    override fun getItemCount(): Int = notifications.size   // 아이템 개수 반환
 }
 

@@ -80,7 +80,6 @@ android {
 
 dependencies {
     implementation(libs.okhttp.v490)
-    implementation(libs.mobile.ffmpeg.full)
 
     // AndroidX 및 Jetpack
     implementation(libs.androidx.navigation.fragment.ktx)
@@ -107,14 +106,6 @@ dependencies {
 
     // 코루틴 (비동기 작업)
     implementation(libs.kotlinx.coroutines.android)
-
-    // Google Cloud Speech API
-    implementation(libs.google.cloud.speech)
-    implementation(libs.google.auth.library.oauth2.http)
-    implementation(libs.grpc.okhttp)
-    implementation(libs.grpc.stub)
-    implementation(libs.gax)
-    implementation(libs.libraries.bom)
 
     // Test 및 Android Test
     testImplementation(libs.junit)

@@ -1,5 +1,6 @@
 package com.example.fishingcatch0403.fishingcatch0403.fragments.contact
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,6 +35,7 @@ class ContactAdapter(
 
     override fun getItemCount() = contactList.size
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateList(newList: List<Contact>) {
         contactList = newList
         notifyDataSetChanged()
