@@ -22,27 +22,28 @@ private var phoneNumber: String? = null
 
 class STTService : Service() {
 
-    private lateinit var progressBarManager: ProgressBarManager
-    private lateinit var apiController: ApiController
+    private lateinit var progressBarManager: ProgressBarManager // ProgressBarManager
+    private lateinit var apiController: ApiController // ApiController
 
     override fun onCreate() {
         super.onCreate()
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         apiController = ApiController()
 
-        // ProgressBarManager 초기화
-        initProgressBarManager()
+        initProgressBarManager()    // ProgressBarManager 초기화
 
         createNotificationChannel() // 알림 채널 생성
         startForegroundService() // Foreground Service 시작
     }
 
+    // ProgressBarManager 초기화
     private fun initProgressBarManager() {
         progressBarManager =
             ProgressBarManager(this, notificationManager, notificationId, CHANNEL_ID)
         apiController.initProgressBarManager(progressBarManager) // ApiController에 ProgressBarManager 전달
     }
 
+    // STT 서비스 시작
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.let {
             phoneNumber = it.getStringExtra("phoneNumber")
@@ -57,13 +58,12 @@ class STTService : Service() {
         Log.d("[APP] STTService", "녹음 파일 분석 시작")
         // FileUtil로 최신 녹음 파일을 가져옴
         FileUtil(contentResolver).getLatestRecordingFile()?.run {
-//            progressBarManager.updateProgressBar(0, 5000)  // --> 현재 progressBar 실행중 정지 오류 발생
             // STT API를 호출하여 음성을 텍스트로 변환
             apiController.getSTTResult(this, object : SttResultCallback {
                 override fun onSuccess(result: String) {
                     Log.d("[APP] STTService", "STT 결과: $result")
-                    showResultNotification(result)
                     analyzeText(result, phoneNumber)
+                    showResultNotification(result)
                 }
 
                 override fun onError(errorMessage: String) {
