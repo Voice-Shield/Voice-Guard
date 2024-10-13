@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">돈콜미</string>
+    <string name="app_name">보이스 가드</string>
     <string name="activity_login_signup_message">계정이 없으신가요? 회원가입</string>
     <string name="SuggestService">보이스 피싱 방지 서비스를 제공받으시겠습니까?</string>
     <string name="NoBtn">아니오</string>
