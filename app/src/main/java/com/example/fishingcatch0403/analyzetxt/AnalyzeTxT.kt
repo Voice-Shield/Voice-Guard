@@ -49,7 +49,7 @@ class AnalyzeTxT : Service() {
 
     // 텍스트 분석 시작 함수
     private fun startAnalyze(text: String, phoneNumber: String?) {
-        analyzeController.analyzeText(text, object : AnalyzeController.AnalysisCallback {
+        analyzeController.analyzeText(this, text, object : AnalyzeController.AnalysisCallback {
             override fun onAnalysisComplete(result: String) {
                 // 알림 표시
                 phoneNumber?.let {

@@ -1,7 +1,9 @@
 package com.example.fishingcatch0403.analyzetxt
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
+import com.example.fishingcatch0403.R
 import com.example.fishingcatch0403.analyzetxt.retrofit.Message
 import com.example.fishingcatch0403.analyzetxt.retrofit.OpenAIRequest
 import com.example.fishingcatch0403.analyzetxt.retrofit.OpenAIResponse
@@ -12,17 +14,22 @@ import retrofit2.Response
 
 class AnalyzeController {
 
-    var analyzeResult: String? = null
-    var resultCheck: Int? = null
-    private var question: String? =
-        "위 내용은 통화내용인데 보이스피싱으로 의심이 된다면 '보이스 피싱이 의심됩니다' 를 의심이 안 된다면 '보이스 피싱이 아닙니다' 로만 대답해주고 그 밑에 추가적으로 만약 보이스 피싱으로 의심된다면 어떤 단어가 각각 몇 건씩 적발되었는지 best3만 추려서 <의심 단어> 로 표시 후에 대답과 같이 깔끔하게 이 내용들만 보여줘"
+    var analyzeResult: String? = null   // 분석 결과를 저장하는 변수
+    var resultCheck: Int? = null    // 분석 결과의 유형을 저장하는 변수
+
+    // 질문을 가져오는 함수
+    private fun getQuestion(context: Context): String {
+        return context.getString(R.string.question)
+    }
 
     // 분석 결과를 전달하는 콜백 인터페이스
     interface AnalysisCallback {
         fun onAnalysisComplete(result: String)
     }
 
-    fun analyzeText(text: String, callback: AnalysisCallback) {
+    // 텍스트 분석 함수
+    fun analyzeText(context: Context, text: String, callback: AnalysisCallback) {
+        val question: String = getQuestion(context)
         // OpenAI API 요청
         val request = OpenAIRequest(
             "gpt-3.5-turbo",

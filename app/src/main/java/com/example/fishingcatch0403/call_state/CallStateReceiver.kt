@@ -17,10 +17,9 @@ import kotlin.coroutines.EmptyCoroutineContext
 
 private var phoneState = ""
 private var foundPhoneNumber = false
-private var onCalled = false
 private var isCallServiceStart = false
 const val INCOMING_NUMBER = TelephonyManager.EXTRA_INCOMING_NUMBER
-
+private var isCallingEnabled = false
 
 class CallStateReceiver : BroadcastReceiver() {
 
@@ -39,14 +38,17 @@ class CallStateReceiver : BroadcastReceiver() {
                 if (foundPhoneNumber.not()) {
                     when (phoneState) {
                         TelephonyManager.EXTRA_STATE_RINGING -> {
+                            isCallingEnabled = true
                             Log.d("[APP] CallState", "통화수신")
                             val phoneNumber = intent.getStringExtra(INCOMING_NUMBER)
                             if (phoneNumber == null) {
                                 Log.e("[APP] CallState", "수신 전화번호: null")
                             } else {
-                                Log.d("[APP] CallState", "수신 전화번호: $phoneNumber")
-                                goAsync(Dispatchers.IO) {
-                                    alertService(context, phoneNumber)
+                                if (isCallingEnabled) {
+                                    Log.d("[APP] CallState", "수신 전화번호: $phoneNumber")
+                                    goAsync(Dispatchers.IO) {
+                                        alertService(context, phoneNumber)
+                                    }
                                 }
                                 foundPhoneNumber = true
                             }
@@ -54,38 +56,41 @@ class CallStateReceiver : BroadcastReceiver() {
 
                         TelephonyManager.EXTRA_STATE_OFFHOOK -> {
                             Log.d("[APP] CallState", "통화진행")
-                            val phoneNumber = intent.getStringExtra(INCOMING_NUMBER)
-                            if (phoneNumber == null) {
-                                Log.e("[APP] CallState", "수신 전화번호: null")
-                            } else {
-                                Log.d("[APP] CallState", "수신 전화번호: $phoneNumber")
-                                goAsync(Dispatchers.IO) {
-                                    stopCallService(context)
-                                    if (isCallServiceStart.not()) {
-                                        if (isPhishingPreventionEnabled) {
-                                            startCallService(context, phoneNumber)
-                                            // 보이스 피싱 방지 기능 활성화
-                                            Log.d("[APP] CallStateReceiver", "서비스 제공")
-                                        } else {
-                                            // 기능 비활성화
-                                            Log.d("[APP] CallStateReceiver", "서비스 미제공")
+                            if (isCallingEnabled) {
+                                val phoneNumber = intent.getStringExtra(INCOMING_NUMBER)
+                                if (phoneNumber == null) {
+                                    Log.e("[APP] CallState", "수신 전화번호: null")
+                                } else {
+                                    Log.d("[APP] CallState", "수신 전화번호: $phoneNumber")
+                                    goAsync(Dispatchers.IO) {
+                                        stopCallService(context)
+                                        if (isCallServiceStart.not()) {
+                                            if (isPhishingPreventionEnabled) {
+                                                startCallService(context, phoneNumber)
+                                                // 보이스 피싱 방지 기능 활성화
+                                                Log.d("[APP] CallStateReceiver", "서비스 제공")
+                                            } else {
+                                                // 기능 비활성화
+                                                Log.d("[APP] CallStateReceiver", "서비스 미제공")
+                                            }
+                                            isCallServiceStart = true
                                         }
-                                        isCallServiceStart = true
+                                        foundPhoneNumber = true
                                     }
-                                    onCalled = true
-                                    foundPhoneNumber = true
                                 }
                             }
                         }
 
                         TelephonyManager.EXTRA_STATE_IDLE -> {
                             Log.d("[APP] CallState", "통화종료")
-                            if (isCallServiceStart) {
-                                stopCallService(context)
-                                isCallServiceStart = false
+                            if (isCallingEnabled) {
+                                if (isCallServiceStart) {
+                                    stopCallService(context)
+                                    isCallServiceStart = false
+                                }
+                                isCallingEnabled = false
+                                foundPhoneNumber = true
                             }
-                            onCalled = false
-                            foundPhoneNumber = true
                         }
                     }
                 }
