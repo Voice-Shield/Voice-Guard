@@ -37,4 +37,7 @@
     <string name="title">Title</string>
     <string name="message">Message</string>
     <string name="delete_notification">delete notification</string>
+    <string name="question">
+        위 내용은 통화내용인데 보이스피싱으로 의심이 된다면 \'보이스 피싱이 의심됩니다\' 를 의심이 안 된다면 \'보이스 피싱이 아닙니다\' 로만 대답해주고 그 밑에 추가적으로 만약 보이스 피싱으로 의심된다면 어떤 단어가 각각 몇 건씩 적발되었는지 best3만 추려서 &lt;의심 단어&gt; 로 표시 후에 대답과 같이 깔끔하게 이 내용들만 보여줘
+    </string>
 </resources>
