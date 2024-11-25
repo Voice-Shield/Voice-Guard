@@ -10,3 +10,5 @@
 - 키패드 입력을 통한 전화 발신 기능
 - 연락처 열람 및 검색, 연락처 내 전화&문자 기능
 - 부팅 시 자동 실행 기능
+![Phishing_Alert](https://github.com/user-attachments/assets/884e28ba-6c81-4680-acd2-cbaa988e8686)
+![Phishing_Log](https://github.com/user-attachments/assets/cb952c4c-5c63-46f8-9f25-98e49e19c870)
