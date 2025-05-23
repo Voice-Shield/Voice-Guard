@@ -16,3 +16,7 @@
 
 #### 보이스 피싱 알림 기록 
 ![Phishing_Log](https://github.com/user-attachments/assets/cb952c4c-5c63-46f8-9f25-98e49e19c870)
+
+## 사용 기술
+- REST API를 활용한 Clova Speech AI & ChatGpt OpenAI Request & Response 통신으로 통화 내용 분석(Android Studio 보안 정책으로 단순 HTTP 통신은 불가)
+- 내장 DB DAO 기술을 활용하여 피싱 알림 내역을 관리
