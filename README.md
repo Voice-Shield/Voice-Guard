@@ -20,3 +20,7 @@
 ## 사용 기술
 - REST API를 활용한 Clova Speech AI & Gpt OpenAI와 Request & Response 통신으로 통화 내용 분석(Android 보안 정책으로 단순 HTTP 통신은 불가)
 - 내장 DB DAO 기술을 활용하여 피싱 알림 내역을 관리
+
+
+## 전체 실행 영상
+https://github.com/user-attachments/assets/f16eee4a-79b5-40eb-bfe4-fc8679add174
