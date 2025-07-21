@@ -1,6 +1,6 @@
 # Voice Guard
 ## 보이스 피싱 방지 어플
-- Clova Speech API와 OpenAI의 Gpt API를 사용하여 수신된 통화를 분석하여 사용자에게 피싱 의심 전화 수신 시 경고 알림
+- Clova Speech API와 OpenAI의 Gpt API를 통해 수신 통화 내용을 분석하여 사용자에게 피싱 의심 전화 수신 시 경고 알림
 
 ### 지원 기능
 - 전화 수신 시 서비스 제공 여부 확인 및 서비스 제공 시 통화 내용 분석 내용 상단 알림을 통한 피싱 경고 기능
@@ -21,6 +21,9 @@
 - REST API를 활용한 Clova Speech AI & Gpt OpenAI와 Request & Response 통신으로 통화 내용 분석(Android 보안 정책으로 단순 HTTP 통신은 불가)
 - 내장 DB DAO 기술을 활용하여 피싱 알림 내역을 관리
 
+## 한계점 및 추후 보완 사항
+- Android 보안 패치로 인하여 시스템 앱이 아닌 경우 통화 중 백그라운드 작업 접근이 불가하여 실시간으로 통화 내용 분석이 불가(현재는 통화 종료 후에 경고 알림)
+- 추후 해당 한계점을 우회할 수 있는 방안을 찾아 기능 향상 예정
 
 ## 전체 실행 영상
 https://github.com/user-attachments/assets/f16eee4a-79b5-40eb-bfe4-fc8679add174
